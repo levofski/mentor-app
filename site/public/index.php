@@ -1,4 +1,15 @@
-<html><body><h1>It works!</h1>
-<p>This is the default web page for this server.</p>
-<p>The web server software is running but no content has been added, yet.</p>
-</body></html>
+<!DOCTYPE HTML>
+<html dir="ltr" lang="en-US">
+	<head>
+		<meta http-equiv="Content-Type"
+			content="text/html;charset=utf-8">
+		<meta name="viewport"
+			content="initial-scale=1.0">
+		<title>PHP Mentoring</title>
+	</head>
+	<body>
+		<h1 class="heading">PHP Mentoring</h1>
+		<script src="./assets/js/backbone-min.js"
+			type="text/javascript"></script>
+	</body>
+</html>
