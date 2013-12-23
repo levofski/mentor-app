@@ -49,7 +49,7 @@
 						</fieldset>
 						<fieldset class="fieldset">
 							<legend class="legend">Public Skills</legend>
-							<p>I would like to (comma-separated)&mdash;</p>
+							<p>I would like to (comma-separated) &mdash;</p>
 							<div class="form_control_pair">
 								<label for="register_teaching_skills">teach the following skills:</label>
 								<div class="form_control_container textarea_control_container">
