@@ -171,6 +171,7 @@ class UserService
         try {
             $statement = $this->db->prepare($deleteQuery);
             $statement->execute(array('id' => $id));
+
             if ($statement->rowCount() < 1) {
                 return false;
             }

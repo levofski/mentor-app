@@ -431,4 +431,122 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
         $user = $userService->retrieve($id);
         $this->assertNull($user);
     }
+
+    public function testExistsThrowsProperExceptionIfEmptyId()
+    {
+        $this->setExpectedException('RuntimeException');
+
+        $userService = new UserService($this->db);
+        $userService->exists('');
+    }
+
+    public function testExistsReturnsTrueWithProperId()
+    {
+        $id = '1bcde23bcd';
+        $expectedQuery = "SELECT id FROM `users` WHERE id = :id";
+
+        $this->db->expects($this->once())
+            ->method('prepare')
+            ->with($expectedQuery)
+            ->will($this->returnValue($this->statement));
+
+        $this->statement->expects($this->at(0))
+            ->method('execute')
+            ->with(['id' => $id])
+            ->will($this->returnValue($this->statement));
+
+        $this->statement->expects($this->at(1))
+            ->method('rowCount')
+            ->will($this->returnValue(1));
+
+        $userService = new UserService($this->db);
+        $userExists = $userService->exists($id);
+        $this->assertTrue($userExists);
+    }
+
+    public function testExistsReturnsFalseWithImproperId()
+    {
+        $id = '1bcde23bcd';
+        $expectedQuery = "SELECT id FROM `users` WHERE id = :id";
+
+        $this->db->expects($this->once())
+            ->method('prepare')
+            ->with($expectedQuery)
+            ->will($this->returnValue($this->statement));
+
+        $this->statement->expects($this->at(0))
+            ->method('execute')
+            ->with(['id' => $id])
+            ->will($this->returnValue($this->statement));
+
+        $this->statement->expects($this->at(1))
+            ->method('rowCount')
+            ->will($this->returnValue(0));
+
+        $userService = new UserService($this->db);
+        $userExists = $userService->exists($id);
+        $this->assertFalse($userExists);
+    }
+
+    public function testDeleteReturnsTrueWithProperId()
+    {
+        $id = '1bcde23bcd';
+        $expectedQuery = "DELETE FROM user WHERE id = :id";
+
+        $this->db->expects($this->at(0))
+            ->method('prepare')
+            ->with($expectedQuery)
+            ->will($this->returnValue($this->statement));
+
+        $this->statement->expects($this->at(0))
+            ->method('execute')
+            ->with(["id" => $id])
+            ->will($this->returnValue($this->statement));
+
+        $this->statement->expects($this->once())
+            ->method('rowCount')
+            ->will($this->returnValue(1));
+
+        $this->db->expects($this->at(1))
+            ->method('prepare')
+            ->with('DELETE FROM teaching_skills WHERE id_user = :id')
+            ->will($this->returnValue($this->statement));
+
+        $this->db->expects($this->at(2))
+            ->method('prepare')
+            ->with('DELETE FROM learning_skills WHERE id_user = :id')
+            ->will($this->returnValue($this->statement));
+
+        $this->statement->expects($this->at(2))
+            ->method('execute')
+            ->with(['id' => $id]);
+
+        $userService = new UserService($this->db);
+        $userDeleted = $userService->delete($id);
+        $this->assertTrue($userDeleted);
+    }
+
+    public function testDeleteReturnsFalseWithImproperId()
+    {
+        $id = '1bcde23bcd';
+        $expectedQuery = "DELETE FROM user WHERE id = :id";
+
+        $this->db->expects($this->at(0))
+            ->method('prepare')
+            ->with($expectedQuery)
+            ->will($this->returnValue($this->statement));
+
+        $this->statement->expects($this->at(0))
+            ->method('execute')
+            ->with(["id" => $id])
+            ->will($this->returnValue($this->statement));
+
+        $this->statement->expects($this->once())
+            ->method('rowCount')
+            ->will($this->returnValue(0));
+
+        $userService = new UserService($this->db);
+        $userDeleted = $userService->delete($id);
+        $this->assertFalse($userDeleted);
+    }
 }
