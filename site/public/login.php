@@ -5,7 +5,7 @@
 			content="text/html;charset=utf-8">
 		<meta name="viewport"
 			content="initial-scale=1.0">
-		<title>PHP Mentoring</title>
+		<title>PHP Mentoring: Log In</title>
 		<link href="https://fonts.googleapis.com/css?family=Architects+Daughter"
 			media="screen"
 			rel="stylesheet"
@@ -29,30 +29,14 @@
 			<div class="column primary_column">
 				<div class="cell primary_cell">
 					<form action="./" class="form"
-						id="register_form"
+						id="login_form"
 						method="post">
 						<fieldset class="fieldset">
-							<legend class="legend">Credentials</legend>
-							<div class="form_control_pair">
-								<label class="label" for="register_name">Name:</label>
-								<div class="form_control_container text_control_container">
-									<input class="form_control text_control"
-										id="register_name" name="register_name"
-										placeholder="John Smith" required
-										tabindex="1" type="text">
-								</div>
-							</div>
-							<div class="form_control_pair">
-								<label class="label" for="register_email">Email:</label>
-								<div class="form_control_container text_control_container">
-									<input class="form_control text_control"
-										id="register_email" name="register_email"
-										placeholder="null@null.invalid" required
-										tabindex="1" type="email">
-								</div>
-							</div>
-							<p><button class="button large_button"
-								tabindex="1" type="submit">Send</button></p>
+							<legend class="legend">Account Conduits</legend>
+							<p class="button_control_container form_control_container"><button class="button conduit_button wide_button"
+								tabindex="1" type="submit"><img alt="Twitter Logo" class="image" height="32" src="./assets/images/twitter/white_32px.png" width="39"> Twitter</button></p>
+							<p class="button_control_container form_control_container"><button class="button conduit_button wide_button"
+								tabindex="1" type="submit"><img alt="GitHub Logo" class="image" height="32" src="./assets/images/github/32px.png" width="32"> GitHub</button></p>
 						</fieldset>
 					</form>
 				</div>

@@ -1,0 +1,241 @@
+@charset "utf-8";
+
+body,
+	.header,
+	.fieldset,
+	.legend,
+	.button
+{
+	margin: 0;
+}
+
+body,
+	.form_control,
+	.button
+{
+	font: 100% "Architects Daughter", Helvetica, Arial, sans-serif;
+}
+
+body,
+	.form_control
+{
+	color: #474747;
+}
+
+.header_row
+{
+	background: url("../images/header-bg.jpg");
+	background-repeat: repeat-x;
+}
+
+.cell
+{
+	margin: 1em;
+}
+
+.header_cell,
+	.button
+{
+	color: #FFFFFF;
+}
+
+.primary_column
+{
+	width: 940px;
+	margin: 0 auto;
+}
+
+.header_cell
+{
+	padding: 40px 0;
+	border-bottom: 1px solid #275DA1;
+	margin: 0;
+}
+
+.header
+{
+	margin-bottom: .2em;
+	font-size: 4.5em;
+	font-weight: normal;
+	line-height: 1;
+}
+
+.header_caption,
+	.legend::before,
+	.label::before
+{
+	color: #9DDCFF;
+}
+
+.header_caption
+{
+	font-size: 1.5em;
+	line-height: 1.3em;
+	text-transform: lowercase;
+}
+
+.fieldset,
+	.text_control,
+	.textarea_control,
+	.select_control,
+	.legend
+{
+	padding: 0;
+}
+
+.fieldset,
+	.text_control,
+	.textarea_control,
+	.select_control
+{
+	border: 0;
+}
+
+.submit_fieldset .legend
+{
+	display: none;
+}
+
+.form_control_pair
+{
+	margin: 1em 0;
+}
+
+.checkbox_control_pair
+{
+	margin: 0;
+}
+
+.form_control_container
+{
+	padding: 1em;
+}
+
+.button_control_container
+{
+	padding: 0;
+}
+
+.text_control_container,
+	.textarea_control_container,
+	.select_control_container
+{
+	border: 1px solid;
+}
+
+.text_control,
+	.textarea_control,
+	.select_control,
+	.wide_button
+{
+	width: 100%;
+}
+
+.textarea_control
+{
+	resize: vertical;
+}
+
+.button
+{
+	padding: .25em .5em;
+	border: 2px solid #DCDCDC;
+	border-radius: .25em;
+	background: #2B87DC;
+	background: linear-gradient(
+		#2B87DC 0%,
+		#2D73C9 100%
+	);
+}
+
+.large_button,
+	.wide_button
+{
+	font-size: 1.5em;
+}
+
+.large_button
+{
+	padding: .333em .75em;
+}
+
+.wide_button
+{
+	padding: .333em 0;
+}
+
+.conduit_button
+{
+	line-height: 32px;
+}
+
+.conduit_button .image
+{
+	vertical-align: top;
+}
+
+.button:hover,
+	.button:active,
+	.button:focus
+{
+	background: linear-gradient(
+		#2D73C9 0%,
+		#2B87DC 100%
+	);
+}
+
+.legend::before
+{
+	content: "/ ";
+}
+
+.label::before
+{
+	content: "// ";
+}
+
+/* 960px at 16px font size */
+
+@media screen and (max-width: 60em)
+{
+	.primary_column {
+		width: 100%;
+		margin: 0;
+	}
+
+	.header_cell {
+		text-align: center;
+	}
+
+	.header {
+		font-size: 3em;
+	}
+
+	.header,
+		.header_caption {
+		margin: 0 1em;
+	}
+}
+
+/* 480px at 16px font size */
+
+@media screen and (max-width: 30em)
+{
+	.header {
+		font-size: 2em;
+	}
+
+	.header_caption {
+		font-size: 1.25em;
+	}
+}
+
+/* 320px at 16px font size */
+
+@media screen and (max-width: 20em)
+{
+	.header,
+		.header_caption {
+		font-size: 1em;
+	}
+}
