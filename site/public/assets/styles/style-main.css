@@ -91,6 +91,11 @@ body,
 	border: 0;
 }
 
+.submit_fieldset .legend
+{
+	display: none;
+}
+
 .form_control_pair
 {
 	margin: 1em 0;

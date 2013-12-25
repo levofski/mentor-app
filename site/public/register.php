@@ -72,7 +72,7 @@ required tabindex="1">
 								</div>
 							</div>
 						</fieldset>
-						<fieldset class="fieldset">
+						<fieldset class="fieldset submit_fieldset">
 							<legend class="legend">Send</legend>
 							<p><button class="button large_button"
 								tabindex="1" type="submit">Continue</button></p>

@@ -33,7 +33,7 @@
 						method="post">
 						<fieldset class="fieldset">
 							<legend class="legend">Public Status</legend>
-							<p>I am &mdash;</p>
+							<p>I am&mdash;</p>
 							<div class="checkbox_control_pair form_control_pair">
 								<input class="checkbox_control form_control"
 									id="register_mentor_available" name="register_mentor_available"
@@ -49,7 +49,7 @@
 						</fieldset>
 						<fieldset class="fieldset">
 							<legend class="legend">Public Skills</legend>
-							<p>I would like to (comma-separated) &mdash;</p>
+							<p>I would like to (comma-separated)&mdash;</p>
 							<div class="form_control_pair">
 								<label for="register_teaching_skills">teach the following skills:</label>
 								<div class="form_control_container textarea_control_container">
@@ -73,7 +73,7 @@
 								</div>
 							</div>
 						</fieldset>
-						<fieldset class="fieldset">
+						<fieldset class="fieldset submit_fieldset">
 							<legend class="legend">Send</legend>
 							<p><button class="button large_button"
 								tabindex="1" type="submit">Register</button></p>
