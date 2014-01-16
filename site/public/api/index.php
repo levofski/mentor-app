@@ -6,6 +6,10 @@ $app = new \Slim\Slim();
 require_once '../../config/environment.php';
 require_once '../../config/database.php';
 
+// setup constants for use in the endpoints
+define("PARTNERSHIP_ROLE_MENTOR", "mentor");
+define("PARTNERSHIP_ROLE_APPRENTICE", "apprentice");
+
 // connect to the database
 $app->db = new \PDO(
     'mysql:hostname='.$config['database'][$config['environment']]['hostname'].';dbname='.$config['database'][$config['environment']]['database'],
@@ -209,22 +213,23 @@ $app->put('/v1/skill', function() use ($app)   {
 });
 
 $app->get('/v1/partnership/:id', function() use ($app) {
-    $parntershipManager = new \MentorApp\PartnershipManager($app->db);
-    $userService = new \MentorApp\UserService($app->db);
-    $partnershipSerializer = new \MentorApp\PartnershipArraySerializer();
-    $userSerializer = new \MentorApp\UserArraySerializer();
+    $partnershipManager = new \MentorApp\PartnershipManager($app->db);
 
-    if (isset($_GET['type'] && strtolower($_GET['type']) === 'apprentice') {
+    if (!isset($_GET['role']) 
+        || (strtolower($_GET['role']) !== PARTNERSHIP_ROLE_MENTOR
+        && strtolower($_GET['role'])) !== PARTNERSHIP_ROLE_APPRENTICE) 
+	{
+        $partnerships = $partnershipManager->retrieve($id);
+    }
+
+    if (strtolower($_GET['role']) === PARTNERSHIP_ROLE_APPRENTICE) {
         $partnerships = $partnershipManager->retrieveByApprentice($id);
     }
 
-    if (isset($_GET['type'] && strtolower($_GET['type']) === 'mentor') {
+    if (strtolower($_GET['role']) === PARTNERSHIP_ROLE_MENTOR) {
         $partnerships = $partnershipManager->retrieveByMentor($id);
     }
 
-    if (!isset($_GET['type']) || (strtolower($_GET['type']) !== 'mentor' && strtolower($_GET['type'])) !== 'apprentice') {
-        $partnerships = $partnershipManager->retrieve($id);
-    }
 
     if (empty($partnerships)) {
         $app->response->setStatus(404);
@@ -232,6 +237,11 @@ $app->get('/v1/partnership/:id', function() use ($app) {
     }
 
     $output = array();
+
+    $userService = new \MentorApp\UserService($app->db);
+    $partnershipSerializer = new \MentorApp\PartnershipArraySerializer();
+    $userSerializer = new \MentorApp\UserArraySerializer();
+
     foreach ($partnerships as $partnership) {
         $output[]['id'] = $partnership['id'];
         $mentor = $userService->retrieve($partnership['mentor']);
