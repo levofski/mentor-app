@@ -84,6 +84,23 @@ body,
 	text-align: center;
 }
 
+.list
+{
+	list-style: inside;
+	padding: 0;
+	margin: 0;
+}
+
+.skills_list .list_item::after
+{
+	content: ",";
+}
+
+.skills_list .list_item:last-child::after
+{
+	content: ".";
+}
+
 .header_caption
 {
 	font-size: 1.5em;

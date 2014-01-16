@@ -37,6 +37,7 @@
 					<div>*/</div>
 				</div>
 				<div class="cell primary_cell user_cell">
+					<h2 class="heading">Availability</h2>
 					<table class="table">
 						<thead class="table_section">
 							<tr class="table_row">
@@ -51,6 +52,15 @@
 							</tr>
 						</tbody>
 					</table>
+				</div>
+				<div class="cell primary_cell user_cell">
+					<h2 class="heading">Skills</h2>
+					<ul class="list skills_list">
+						<li class="list_item">PHP</li>
+						<li class="list_item">JavaScript</li>
+						<li class="list_item">CSS</li>
+						<li class="list_item">HTML</li>
+					</ul>
 				</div>
 			</div>
 		</div>
