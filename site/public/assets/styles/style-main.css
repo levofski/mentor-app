@@ -140,7 +140,8 @@ body,
 	border: 1px solid;
 }
 
-.text_control,
+.table,
+	.text_control,
 	.textarea_control,
 	.select_control,
 	.wide_button
