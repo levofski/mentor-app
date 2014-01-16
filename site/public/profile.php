@@ -46,8 +46,8 @@
 						</thead>
 						<tbody class="table_section">
 							<tr class="table_row">
-								<td class="table_cell">&#x2713;</td>
-								<td class="table_cell">&#x2716;</td>
+								<td class="table_cell" title="Yes, this user is available to mentor others.">&#x2713;</td>
+								<td class="table_cell" title="No, this user is not available as an apprentice.">&#x2716;</td>
 							</tr>
 						</tbody>
 					</table>
