@@ -53,6 +53,18 @@ body,
 	margin: 0;
 }
 
+.docblock_cell,
+	.table_cell
+{
+	padding: 1em;
+}
+
+.docblock_cell
+{
+	background: #2679AA;
+	color: #FFFFFF;
+}
+
 .header
 {
 	margin-bottom: .2em;
@@ -63,7 +75,8 @@ body,
 
 .header_caption,
 	.legend::before,
-	.label::before
+	.label::before,
+	.docblock_notation
 {
 	color: #9DDCFF;
 }
@@ -81,7 +94,6 @@ body,
 
 .table_cell
 {
-	padding: 1em;
 	text-align: center;
 }
 

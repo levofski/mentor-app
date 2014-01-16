@@ -27,14 +27,14 @@
 		</div>
 		<div class="primary_row row">
 			<div class="column primary_column">
-				<div class="cell primary_cell user_cell">
-					<div>/**</div>
-					<div>* @author <span class="user_name">Null Industries</span></div>
-					<div>* @email <span class="user_email">null@null.invalid</span></div>
-					<div>* @see <span class="user_github">github.com/nullindustries</span></div>
-					<div>* @see <span class="user_irc">nullindustries@freenode.net</span></div>
-					<div>* @see <span class="user_twitter">twitter.com/nullindustries</span></div>
-					<div>*/</div>
+				<div class="cell docblock_cell primary_cell user_cell">
+					<div><span class="docblock_notation">/**</span></div>
+					<div><span class="docblock_notation">*</span> @author <span class="user_name">Null Industries</span></div>
+					<div><span class="docblock_notation">*</span> @email <span class="user_email">null@null.invalid</span></div>
+					<div><span class="docblock_notation">*</span> @see <span class="user_github">github.com/nullindustries</span></div>
+					<div><span class="docblock_notation">*</span> @see <span class="user_irc">nullindustries@freenode.net</span></div>
+					<div><span class="docblock_notation">*</span> @see <span class="user_twitter">twitter.com/nullindustries</span></div>
+					<div><span class="docblock_notation">*/</span></div>
 				</div>
 				<div class="cell primary_cell user_cell">
 					<h2 class="heading">Availability</h2>
