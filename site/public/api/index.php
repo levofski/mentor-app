@@ -275,4 +275,20 @@ $app->post('/v1/partnership', function() use ($app) {
     $app->setStatus(400);
 });
 
+$app->delete('/v1/partnership/:id', function() use ($app) {
+    $hashValidator = new \MentorApp\HashValidator();
+    if (!$hashValidator->validate($id)) {
+        $app->response->setStatus(404);
+        return;
+    }
+
+    $partnershipManager = new \MentorApp\PartnershipManager($app->db);
+    if ($partnershipManager->delete($id)) {
+        $app->response->setStatus(200);
+        return;
+    }
+
+    $app->response->setStatus(400);
+});
+
 $app->run();
