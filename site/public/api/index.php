@@ -253,4 +253,26 @@ $app->get('/v1/partnership/:id', function() use ($app) {
     $app->response->setStatus(200);
     print json_encode($output);
 });    
+
+$app->post('/v1/partnership', function() use ($app) {
+    $requestData = $app->request->getBody();
+    $data = json_decode($requestData, true);
+    if (!isset($data['mentor'] || !isset($data['apprentice'])) {
+        $app->response->setStatus(400);
+        return;
+    }
+
+    $partnershipManager = new \MentorApp\PartnershipManager($app->db);
+    $userService = new \MentorApp\UserService($app->db);
+    $mentor = $userService->retrieve($data['mentor']);
+    $apprentice = $userService->retrieve($data['apprentice']);
+
+    if ($partnershipManager->create($mentor, $apprentice)) {
+        $app->response->setStatus(201);
+        return;
+    }
+
+    $app->setStatus(400);
+});
+
 $app->run();
