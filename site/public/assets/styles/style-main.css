@@ -67,6 +67,23 @@ body,
 	color: #9DDCFF;
 }
 
+.table
+{
+	border-collapse: collapse;
+}
+
+.table,
+	.table_cell
+{
+	border: 1px solid #2679AA;
+}
+
+.table_cell
+{
+	padding: 1em;
+	text-align: center;
+}
+
 .header_caption
 {
 	font-size: 1.5em;
