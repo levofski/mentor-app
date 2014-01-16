@@ -184,7 +184,7 @@ $app->post('/v1/skill', function() use ($app)  {
         $app->response->setStatus(400);
         return;
     }
-    http_reponse_code(201);
+    $app->response->setStatus(201);
 });
 
 $app->put('/v1/skill', function() use ($app)   {
@@ -207,4 +207,40 @@ $app->put('/v1/skill', function() use ($app)   {
     }
     $app->response->setStatus(200);
 });
+
+$app->get('/v1/partnership/:id', function() use ($app) {
+    $parntershipManager = new \MentorApp\PartnershipManager($app->db);
+    $userService = new \MentorApp\UserService($app->db);
+    $partnershipSerializer = new \MentorApp\PartnershipArraySerializer();
+    $userSerializer = new \MentorApp\UserArraySerializer();
+
+    if (isset($_GET['type'] && strtolower($_GET['type']) === 'apprentice') {
+        $partnerships = $partnershipManager->retrieveByApprentice($id);
+    }
+
+    if (isset($_GET['type'] && strtolower($_GET['type']) === 'mentor') {
+        $partnerships = $partnershipManager->retrieveByMentor($id);
+    }
+
+    if (!isset($_GET['type']) || (strtolower($_GET['type']) !== 'mentor' && strtolower($_GET['type'])) !== 'apprentice') {
+        $partnerships = $partnershipManager->retrieve($id);
+    }
+
+    if (empty($partnerships)) {
+        $app->response->setStatus(404);
+        return;
+    }
+
+    $output = array();
+    foreach ($partnerships as $partnership) {
+        $output[]['id'] = $partnership['id'];
+        $mentor = $userService->retrieve($partnership['mentor']);
+        $output[]['mentor'] = $userSerialzier->toArray($mentor);
+        $apprentice = $userService->retrieve($partnership['apprentice']);
+        $output[]['apprentice'] = $userSerializer->toArray($apprentice);
+    }
+
+    $app->response->setStatus(200);
+    print json_encode($output);
+});    
 $app->run();
