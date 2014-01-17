@@ -1,6 +1,7 @@
 @charset "utf-8";
 
 body,
+	.list,
 	.header,
 	.fieldset,
 	.legend,
@@ -52,6 +53,18 @@ body,
 	margin: 0;
 }
 
+.docblock_cell,
+	.table_cell
+{
+	padding: 1em;
+}
+
+.docblock_cell
+{
+	background: #2679AA;
+	color: #FFFFFF;
+}
+
 .header
 {
 	margin-bottom: .2em;
@@ -62,9 +75,42 @@ body,
 
 .header_caption,
 	.legend::before,
-	.label::before
+	.label::before,
+	.docblock_notation
 {
 	color: #9DDCFF;
+}
+
+.table
+{
+	border-collapse: collapse;
+}
+
+.table,
+	.table_cell
+{
+	border: 1px solid #2679AA;
+}
+
+.table_cell
+{
+	text-align: center;
+}
+
+.list
+{
+	list-style: inside;
+	padding: 0;
+}
+
+.skills_list .list_item::after
+{
+	content: ",";
+}
+
+.skills_list .list_item:last-child::after
+{
+	content: ".";
 }
 
 .header_caption
@@ -123,7 +169,8 @@ body,
 	border: 1px solid;
 }
 
-.text_control,
+.table,
+	.text_control,
 	.textarea_control,
 	.select_control,
 	.wide_button
@@ -234,6 +281,10 @@ body,
 
 @media screen and (max-width: 20em)
 {
+	.table_cell {
+		padding: 0;
+	}
+
 	.header,
 		.header_caption {
 		font-size: 1em;
