@@ -6,6 +6,10 @@ $app = new \Slim\Slim();
 require_once '../../config/environment.php';
 require_once '../../config/database.php';
 
+// setup constants for use in the endpoints
+define("PARTNERSHIP_ROLE_MENTOR", "mentor");
+define("PARTNERSHIP_ROLE_APPRENTICE", "apprentice");
+
 // connect to the database
 $app->db = new \PDO(
     'mysql:hostname='.$config['database'][$config['environment']]['hostname'].';dbname='.$config['database'][$config['environment']]['database'],
@@ -184,7 +188,7 @@ $app->post('/v1/skill', function() use ($app)  {
         $app->response->setStatus(400);
         return;
     }
-    http_reponse_code(201);
+    $app->response->setStatus(201);
 });
 
 $app->put('/v1/skill', function() use ($app)   {
@@ -207,4 +211,70 @@ $app->put('/v1/skill', function() use ($app)   {
     }
     $app->response->setStatus(200);
 });
+
+$app->get('/v1/partnership/:id', function() use ($app) {
+    $partnershipManager = new \MentorApp\PartnershipManager($app->db);
+	$role = (!$app->request->get('role')) ? '' : $app->request->get('role');
+	$partnerships = $partnershipManager->retrieveByRole($role, $id);
+
+    if (empty($partnerships)) {
+        $app->response->setStatus(404);
+        return;
+    }
+
+    $output = array();
+
+    $userService = new \MentorApp\UserService($app->db);
+    $partnershipSerializer = new \MentorApp\PartnershipArraySerializer();
+    $userSerializer = new \MentorApp\UserArraySerializer();
+    $output = array();
+    foreach ($partnerships as $partnership) {
+        $mentor = $userService->retrieve($partnership->mentor);
+        $partnership->mentor = $userSerialzier->toArray($mentor);
+        $apprentice = $userService->retrieve($partnership->apprentice);
+        $partnership->apprentice = $userSerializer->toArray($apprentice);
+        $output[] = $partnershipSerializer->toArray($partnership);
+    }
+
+    $app->response->setStatus(200);
+    print json_encode($output);
+});    
+
+$app->post('/v1/partnership', function() use ($app) {
+    $requestData = $app->request->getBody();
+    $data = json_decode($requestData, true);
+    if (!isset($data['mentor'] || !isset($data['apprentice'])) {
+        $app->response->setStatus(400);
+        return;
+    }
+
+    $partnershipManager = new \MentorApp\PartnershipManager($app->db);
+    $userService = new \MentorApp\UserService($app->db);
+    $mentor = $userService->retrieve($data['mentor']);
+    $apprentice = $userService->retrieve($data['apprentice']);
+
+    if ($partnershipManager->create($mentor, $apprentice)) {
+        $app->response->setStatus(201);
+        return;
+    }
+
+    $app->setStatus(400);
+});
+
+$app->delete('/v1/partnership/:id', function() use ($app) {
+    $hashValidator = new \MentorApp\HashValidator();
+    if (!$hashValidator->validate($id)) {
+        $app->response->setStatus(404);
+        return;
+    }
+
+    $partnershipManager = new \MentorApp\PartnershipManager($app->db);
+    if ($partnershipManager->delete($id)) {
+        $app->response->setStatus(200);
+        return;
+    }
+
+    $app->response->setStatus(400);
+});
+
 $app->run();
