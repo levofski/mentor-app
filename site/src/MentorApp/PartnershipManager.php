@@ -17,6 +17,12 @@ class PartnershipManager
      */
     use Hash;
 
+    /**
+     * Constants for the roles
+     */
+    const PARTNERSHIP_ROLE_MENTOR = 'mentor';
+    const PARTNERSHIP_ROLE_APPRENTICE = 'apprentice';
+
     /** 
      * @var \PDO $db instance of PDO
      */
@@ -170,6 +176,32 @@ class PartnershipManager
         }
         return $partnerships;
     } 
+
+    /**
+     * Retrieve by role method will take an argument to determine how to filter the
+     * retrieval request.
+     *
+     * @param string $role
+     * @param string $id
+     * @return array
+     */
+    public function retrieveByRole($role, $id)
+    {
+        switch(strtolower($role)) {
+            case PARTNERSHIP_ROLE_MENTOR:
+                $partnerships = $this->retrieveByMentor($id);
+            break;
+
+            case PARTNERSHIP_ROLE_APPRENTICE:
+                $partnerships = $this->retrieveByApprentice($id);
+            break;
+
+            default:
+                $partnerships = $this->retrieve($id);
+        }
+        return $partnerships;
+    }
+  
     /**
      * Method to fulfill the abstract Hash trait method and verify the id
      * being generated doesn't already exist

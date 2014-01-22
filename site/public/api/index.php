@@ -214,22 +214,8 @@ $app->put('/v1/skill', function() use ($app)   {
 
 $app->get('/v1/partnership/:id', function() use ($app) {
     $partnershipManager = new \MentorApp\PartnershipManager($app->db);
-
-    if (!isset($_GET['role']) 
-        || (strtolower($_GET['role']) !== PARTNERSHIP_ROLE_MENTOR
-        && strtolower($_GET['role'])) !== PARTNERSHIP_ROLE_APPRENTICE) 
-	{
-        $partnerships = $partnershipManager->retrieve($id);
-    }
-
-    if (strtolower($_GET['role']) === PARTNERSHIP_ROLE_APPRENTICE) {
-        $partnerships = $partnershipManager->retrieveByApprentice($id);
-    }
-
-    if (strtolower($_GET['role']) === PARTNERSHIP_ROLE_MENTOR) {
-        $partnerships = $partnershipManager->retrieveByMentor($id);
-    }
-
+	$role = (!$app->request->get('role')) ? '' : $app->request->get('role');
+	$partnerships = $partnershipManager->retrieveByRole($role, $id);
 
     if (empty($partnerships)) {
         $app->response->setStatus(404);
