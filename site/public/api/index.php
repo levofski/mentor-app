@@ -227,13 +227,13 @@ $app->get('/v1/partnership/:id', function() use ($app) {
     $userService = new \MentorApp\UserService($app->db);
     $partnershipSerializer = new \MentorApp\PartnershipArraySerializer();
     $userSerializer = new \MentorApp\UserArraySerializer();
-
+    $output = array();
     foreach ($partnerships as $partnership) {
-        $output[]['id'] = $partnership['id'];
-        $mentor = $userService->retrieve($partnership['mentor']);
-        $output[]['mentor'] = $userSerialzier->toArray($mentor);
-        $apprentice = $userService->retrieve($partnership['apprentice']);
-        $output[]['apprentice'] = $userSerializer->toArray($apprentice);
+        $mentor = $userService->retrieve($partnership->mentor);
+        $partnership->mentor = $userSerialzier->toArray($mentor);
+        $apprentice = $userService->retrieve($partnership->apprentice);
+        $partnership->apprentice = $userSerializer->toArray($apprentice);
+        $output[] = $partnershipSerializer->toArray($partnership);
     }
 
     $app->response->setStatus(200);

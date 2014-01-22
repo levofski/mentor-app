@@ -21,6 +21,8 @@ class PartnershipArraySerializer implements SerializerInterface
             return $response;
         }
         $response['id'] = $partnership->id;
+        $response['mentor'] = $partnership->mentor;
+        $response['apprentice'] = $partnership->apprentice;
         return $response;
     }
 
@@ -34,6 +36,8 @@ class PartnershipArraySerializer implements SerializerInterface
     {
         $partnership = new Partnership();
         $partnership->id = (isset($partnershipValues['id'])) ? $partnershipValues['id'] : null;
+        $partnership->mentor = (isset($partnershipValues['mentor'])) ? $partnershipValues['mentor'] : null;
+        $partnership->apprentice = (isset($partnershipValues['apprentice'])) ? $partnershipValues['apprentice'] : null;
         return $partnership;
     }
 }
