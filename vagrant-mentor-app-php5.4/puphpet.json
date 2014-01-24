@@ -107,14 +107,14 @@
     },
     "database": "mysql",
     "mysql": {
-        "root": "<REMOVED>",
+        "root": "password",
         "dbuser": {
             "1": {
                 "privileges": [
                     "ALL"
                 ],
                 "user": "mentor",
-                "password": "<REMOVED>",
+                "password": "mentor",
                 "dbname": "mentor",
                 "host": "localhost",
                 "sql": ""

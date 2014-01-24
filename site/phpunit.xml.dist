@@ -11,6 +11,7 @@
         <blacklist>
             <directory>./vendor</directory>
             <directory>./migrations</directory>
+            <directory>./tests/behat</directory>
         </blacklist>
         <whitelist addUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">src/MentorApp</directory>
