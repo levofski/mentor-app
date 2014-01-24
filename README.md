@@ -63,6 +63,7 @@ To get started with Behat:
   *(Optional) Create an alias to start the selenium server.  For example: `alias behat='java -jar ~/bin/selenium-server-standalone-2.35.0.jar -host 192.168.56.1`
 3. Before you can run the behat tests, you must start the selenium server on the host machine.  From the terminal, simply type “behat” and the server should start running.
 4. To run the tests, SSH into the VM, go to the root of the project (`/var/www` - same directory as the behat.yml file) and type `bin/behat`.  If you are using vagrant, then the VM must be running and you must be within an SSH session (vagrant ssh).
+
 If all goes well, you should see a Google Chrome window open up and the tests execute.
 
 ### TODO:
