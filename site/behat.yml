@@ -1,0 +1,12 @@
+default:
+  paths:
+    features: 'tests/behat/features'
+  extensions:
+    Behat\MinkExtension\Extension:
+      goutte: ~
+      default_session: selenium2
+      browser_name: chrome
+      selenium2:
+        wd_host: http://192.168.56.1:4444/wd/hub
+        capabilities: { "browserName": "chrome", "browserVersion": "21", "version": "21" }
+      base_url: http://mentorapp.dev
