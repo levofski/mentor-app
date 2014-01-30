@@ -188,7 +188,7 @@ class SkillService
      */
     public function delete($id)
     {
-        if (!filter_var($id, FILTER_VALIDATE_REGEX, ['regex' =>'/^[a-f0-9]{10}$/'])) {
+        if (!filter_var($id, FILTER_VALIDATE_REGEXP, ['options' => ['regexp' =>'/^[a-f0-9]{10}$/']])) {
             return false;
         }
         try {

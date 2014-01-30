@@ -32,13 +32,13 @@ class SkillSerializerTest extends \PHPUnit_Framework_TestCase
         $skill = new Skill();
         $skill->id = '1bced32ead';
         $skill->name = 'Nunchuck';
-        $skill->added = '2013-11-26 21:08:15';
+        $skill->added = new \DateTime('2013-11-26 21:08:15');
         $skill->authorized = true;
 
         $skillArray = $this->serializer->toArray($skill);
         $this->assertEquals($skill->id, $skillArray['id']);
         $this->assertEquals($skill->name, $skillArray['name']);
-        $this->assertEquals($skill->added, $skillArray['added']);
+        $this->assertEquals($skill->added->format('Y-m-d H:i:s'), $skillArray['added']);
     }
 
     /**
