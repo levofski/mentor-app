@@ -230,7 +230,7 @@ $app->get('/v1/partnership/:id', function() use ($app) {
     $output = array();
     foreach ($partnerships as $partnership) {
         $mentor = $userService->retrieve($partnership->mentor);
-        $partnership->mentor = $userSerialzier->toArray($mentor);
+        $partnership->mentor = $userSerializer->toArray($mentor);
         $apprentice = $userService->retrieve($partnership->apprentice);
         $partnership->apprentice = $userSerializer->toArray($apprentice);
         $output[] = $partnershipSerializer->toArray($partnership);
@@ -243,7 +243,7 @@ $app->get('/v1/partnership/:id', function() use ($app) {
 $app->post('/v1/partnership', function() use ($app) {
     $requestData = $app->request->getBody();
     $data = json_decode($requestData, true);
-    if (!isset($data['mentor'] || !isset($data['apprentice'])) {
+    if (!isset($data['mentor']) || !isset($data['apprentice'])) {
         $app->response->setStatus(400);
         return;
     }
