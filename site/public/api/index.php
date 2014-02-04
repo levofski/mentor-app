@@ -212,7 +212,7 @@ $app->put('/v1/skill', function() use ($app)   {
     $app->response->setStatus(200);
 });
 
-$app->get('/v1/partnership/:id', function() use ($app) {
+$app->get('/v1/partnership/:id', function($id) use ($app) {
     $partnershipManager = new \MentorApp\PartnershipManager($app->db);
 	$role = (!$app->request->get('role')) ? '' : $app->request->get('role');
 	$partnerships = $partnershipManager->retrieveByRole($role, $id);
@@ -261,7 +261,7 @@ $app->post('/v1/partnership', function() use ($app) {
     $app->setStatus(400);
 });
 
-$app->delete('/v1/partnership/:id', function() use ($app) {
+$app->delete('/v1/partnership/:id', function($id) use ($app) {
     $hashValidator = new \MentorApp\HashValidator();
     if (!$hashValidator->validate($id)) {
         $app->response->setStatus(404);
