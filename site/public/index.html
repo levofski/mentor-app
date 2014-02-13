@@ -14,23 +14,30 @@
             media="all"
             rel="stylesheet"
             type="text/css">
+        <script type="text/template" id="profile-view-old">
+            <h1>ohhai</h1>
+        </script>
         <script type="text/html" id="profile-view">
             <div class="primary_row row">
                 <div class="column primary_column">
                     <div class="cell docblock_cell primary_cell user_cell">
                         <div><span class="docblock_notation">/**</span></div>
-                        <div><span class="docblock_notation">*</span> @author <span class="user_name"><%= first_name last_name %></span></div>
+                        <div><span class="docblock_notation">*</span> @author <span class="user_name"><%= first_name %> <%= last_name %></span></div>
                         <div><span class="docblock_notation">*</span> @email <span class="user_email"><%= email_address %></span></div>
                         <div><span class="docblock_notation">*</span> @see <span class="user_github"><%= github %></span></div>
                         <div><span class="docblock_notation">*</span> @see <span class="user_irc"><%= irc_handle %></span></div>
                         <div><span class="docblock_notation">*</span> @see <span class="user_twitter"><%= twitter_handle %></span></div>
                         <div><span class="docblock_notation">*/</span></div>
                     </div>
+            </div>
         </script>
-        <script src="./assets/js/backbone-min.js"></script>
-        <script src="./assets/js/underscore-min.js"></script>
-        <script src="./assets/js/jquery-1.11.0.min.js"></script>
-        <!--Add in all the models, views, collections, etc once they exist -->
+        <script src="./assets/js/underscore-min.js" type="text/javascript"></script>
+        <script src="./assets/js/jquery-1.11.0.min.js" type="text/javascript"></script>
+        <script src="./assets/js/backbone-min.js" type="text/javascript"></script>
+        <script src="./assets/js/app.js" type="text/javascript"></script>
+        <script src="./assets/js/app/User.js" type="text/javascript"></script>
+        <script src="./assets/js/app/UserProfileView.js" type="text/javascript"></script>
+        <script src="./assets/js/bootstrap.js" type="text/javascript"></script>
 
     </head>
     <body>
@@ -42,3 +49,6 @@
                 </div>
             </div>
         </div>
+        <div id="application-content"></div>
+	</body>
+</html>

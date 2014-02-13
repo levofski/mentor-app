@@ -1,15 +1,16 @@
 window.App = {};
 
 App.init = function() {
-    var UserSearch = null;
+    var UserProfile = null;
 
     $.ajaxSetup({
         'dataType': 'json'
     });
 
     Backbone.emulateHTTP = true;
-
-    UserSearch = new App.UserSearchView({
-        el: $('#usersearch')
+    
+    UserProfile = new App.UserProfileView({
+        el: $("#application-content"),
     });
 };
+
