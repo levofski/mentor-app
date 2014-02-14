@@ -216,13 +216,13 @@ $app->post('/v1/skills', function() use ($app)  {
     $app->response->setStatus(201);
 });
 
-$app->put('/v1/skills', function() use ($app)   {
+$app->put('/v1/skills/:id', function() use ($app)   {
     $hashValidator = new \MentorApp\HashValidator();
     $skillService = new \MentorApp\SkillService($app->db);
     $body = $app->request->getBody();
     $skillArray = json_decode($body, true);
     $skill = new \MentorApp\Skill();
-    ($skillArray['id'] !== null) ? $skill->id = htmlspecialchars($skillArray['id']) : $skill->id = null;
+    ($skillArray['id'] !== null) ? $skill->id = htmlspecialchars($id) : $skill->id = null;
     ($skillArray['name'] !== null) ? $skill->name = htmlspecialchars($skillArray['name']) : $skill->name = null;
     ($skillArray['added'] !== null) ? $skill->added = htmlspecialchars($skillArray['added']) : $skill->added = null;
     ($skillArray['authorized'] !== null) ? $skill->authorized = htmlspecialchars($skillArray['authorized']) : $skill->authorized = null; 
