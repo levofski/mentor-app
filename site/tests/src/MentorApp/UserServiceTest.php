@@ -620,6 +620,10 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(['id_tag' => '123455beda']));
         $service = new UserService($this->db);
         $results = $service->retrieveAll();
+        $this->assertEquals($data[0]['first_name'], $results[0]->firstName);
+        $this->assertEquals($data[1]['last_name'], $results[1]->lastName);
+        $this->assertEquals($data[0]['id'], $results[0]->id);
+        $this->assertEquals($data[1]['id'], $results[1]->id);
     } 
 
 }
