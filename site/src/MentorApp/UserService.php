@@ -322,7 +322,7 @@ class UserService
      * @param int $page the page number to be retrieved
      * @return array an array of all the users on that page.
      */
-    public function retrieveAll($results_per_page=20, $page=1)
+    public function retrieveAll($page=1, $results_per_page=20)
     {
         if (!is_int($results_per_page) || !is_int($page)) {
             throw new \RuntimeException('Something went wrong, we couldn\'t retrieve the users');
