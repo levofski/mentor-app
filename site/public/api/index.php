@@ -145,7 +145,28 @@ $app->put('/v1/users', function() use ($app) {
 });
 
 $app->get('/v1/skills', function() use ($app) {
-
+    $skillService = new \MentorApp\SkillService($app->db);
+    $skillSerializer = new \MentorApp\SkillArraySerializer();
+    $userService = new \MentorApp\UserService($app->db);
+    $userSerializer = new \MentorApp\UserArraySerializer();
+    $users = $userService->retrieveAll();
+    $response = array();
+    // considered making the serializers able to take single instances
+    // or an array of instances, in the meantime...this is going to have to do.
+    foreach ($users as $user) {
+        $serializedUser = $userSerializer->toArray($user);
+        $learningSkills = $skillService->retrieveByIds($user->learningSkills);
+        $teachingSkills = $skillService->retrieveByIds($user->teachingSkills);
+        foreach ($learningSkills as $learn) {
+            $serializedUser['learningSkills'][] = $skillSerializer->toArray($learn);
+        }
+        foreach ($teachingSkills as $teach) {
+            $serializerUser['teachingSkills'][] = $skillSerializer->toArray($teach);
+        }
+        $response[] = $serializedUser;
+    }
+    $app-response->setStatus(200);
+    print json_encode($response);
 });
 
 $app->get('/v1/skills/:id', function($id) use ($app) {
