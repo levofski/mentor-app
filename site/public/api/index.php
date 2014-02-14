@@ -108,13 +108,13 @@ $app->post('/v1/users', function() use ($app) {
     $app->response->setStatus(201);
 });        
 
-$app->put('/v1/users', function() use ($app) {
+$app->put('/v1/users/:id', function() use ($app) {
     $user = new \MentorApp\User();
     $userService = new \MentorApp\UserService($app->db);
     $skillService = new \MentorApp\SkillService($app->db);
     $data = $app->request->getBody();
     $dataArray = json_decode($data, true);
-    $user->id = filter_var($dataArray['id'], FILTER_SANITIZE_STRING);
+    $user->id = filter_var($id, FILTER_SANITIZE_STRING);
     $user->firstName = filter_var($dataArray['first_name'], FILTER_SANITIZE_STRING);
     $user->lastName = filter_var($dataArray['last_name'], FILTER_SANITIZE_STRING);
     $user->email = filter_var($dataArray['email'], FILTER_SANITIZE_EMAIL);
