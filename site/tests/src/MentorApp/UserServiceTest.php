@@ -9,8 +9,6 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
     {
         $this->db = $this->getMock('\PDOTestHelper', array('prepare'));
         $this->statement = $this->getMock('\PDOStatement', array('execute', 'fetch', 'fetchAll', 'rowCount'));
-        $this->teachingCheckStatement = $this->getMock('\PDOStatement', array('execute', 'fetch'));
-        $this->learningCheckStatement = $this->getMock('\PDOStatement', array('execute', 'fetch'));
         $this->mockData = array();
         $this->mockData['id'] = '';
         $this->mockData['first_name'] = 'Test';
@@ -549,4 +547,79 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
         $userDeleted = $userService->delete($id);
         $this->assertFalse($userDeleted);
     }
+
+    /**
+     * Test to ensure the UserService can retrieve all the Users with pagination
+     */
+    public function testRetrieveAllUsersFromService()
+    {
+        $teachingQuery = 'SELECT id_tag FROM teaching_skills WHERE id_user = :id';
+        $learningQuery = 'SELECT id_tag FROM learning_skills WHERE id_user = :id';
+        $data = array(
+            array('id' => '12345bcdef', 'first_name' => 'Matt', 'last_name' => 'Frost'),
+            array('id' => 'bbcde54e3a', 'first_name' => 'Test', 'last_name' => 'User'),
+        );
+
+        $this->db->expects($this->at(0))
+            ->method('prepare')
+            ->with($this->stringContains('LIMIT 0, 20'))
+            ->will($this->returnValue($this->statement));
+        $this->statement->expects($this->at(0))
+            ->method('execute')
+            ->will($this->returnValue($this->statement));
+        $this->statement->expects($this->at(1))
+            ->method('fetchAll')
+            ->will($this->returnValue($data));
+
+        $this->db->expects($this->at(1))
+            ->method('prepare')
+            ->with($teachingQuery)
+            ->will($this->returnValue($this->statement));
+        $this->statement->expects($this->at(2))
+            ->method('execute')
+            ->with(['id' => $data[0]['id']])
+            ->will($this->returnValue($this->statement));
+        $this->statement->expects($this->at(3))
+            ->method('fetch')
+            ->will($this->returnValue(['id_tag' => 'bbce15ed69']));
+
+        $this->db->expects($this->at(2))
+            ->method('prepare')
+            ->with($learningQuery)
+            ->will($this->returnValue($this->statement));
+        $this->statement->expects($this->at(5))
+            ->method('execute')
+            ->with(['id'=> $data[0]['id']])
+            ->will($this->returnValue($this->statement));
+        $this->statement->expects($this->at(6))
+            ->method('fetch')
+            ->will($this->returnValue(['id_tag' => '123455beda']));
+
+        $this->db->expects($this->at(3))
+            ->method('prepare')
+            ->with($teachingQuery)
+            ->will($this->returnValue($this->statement));
+        $this->statement->expects($this->at(8))
+            ->method('execute')
+            ->with(['id' => $data[1]['id']])
+            ->will($this->returnValue($this->statement));
+        $this->statement->expects($this->at(9))
+            ->method('fetch')
+            ->will($this->returnValue(['id_tag' => 'bbce15ed69']));
+
+        $this->db->expects($this->at(4))
+            ->method('prepare')
+            ->with($learningQuery)
+            ->will($this->returnValue($this->statement));
+        $this->statement->expects($this->at(11))
+            ->method('execute')
+            ->with(['id'=> $data[1]['id']])
+            ->will($this->returnValue($this->statement));
+        $this->statement->expects($this->at(12))
+            ->method('fetch')
+            ->will($this->returnValue(['id_tag' => '123455beda']));
+        $service = new UserService($this->db);
+        $results = $service->retrieveAll();
+    } 
+
 }

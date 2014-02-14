@@ -17,7 +17,7 @@ $app->db = new \PDO(
     $config['database'][$config['environment']]['password']
 );
 
-$app->get('/v1/user/:id', function($id) use ($app) {
+$app->get('/v1/users/:id', function($id) use ($app) {
     // add authentication, authz shouldn't matter here
     $hashValidator = new \MentorApp\HashValidator();
     if (!$hashValidator->validate($id)) {
@@ -58,7 +58,7 @@ $app->get('/v1/user/:id', function($id) use ($app) {
     print json_encode($response); 
 });
 
-$app->delete('/v1/user/:id', function($id) use ($app) {
+$app->delete('/v1/users/:id', function($id) use ($app) {
     $hashValidator = new \MentorApp\HashValidator();
     if (!$hashValidator->validate($id)) {
         $app->response->setStatus(404);
@@ -73,7 +73,7 @@ $app->delete('/v1/user/:id', function($id) use ($app) {
     $app->response->setStatus(200);
 });
 
-$app->post('/v1/user', function() use ($app) {
+$app->post('/v1/users', function() use ($app) {
     $user = new \MentorApp\User();
     $userService = new \MentorApp\UserService($app->db);
     $skillService = new \MentorApp\SkillService($app->db);
@@ -108,7 +108,7 @@ $app->post('/v1/user', function() use ($app) {
     $app->response->setStatus(201);
 });        
 
-$app->put('/v1/user', function() use ($app) {
+$app->put('/v1/users', function() use ($app) {
     $user = new \MentorApp\User();
     $userService = new \MentorApp\UserService($app->db);
     $skillService = new \MentorApp\SkillService($app->db);
@@ -144,7 +144,11 @@ $app->put('/v1/user', function() use ($app) {
     $app->response->setStatus(200);
 });
 
-$app->get('/v1/skill/:id', function($id) use ($app) {
+$app->get('/v1/skills', function() use ($app) {
+
+});
+
+$app->get('/v1/skills/:id', function($id) use ($app) {
     $hashValidator = new \MentorApp\HashValidator();
     if (!$hashValidator->validate($id)) {
         $app->response->setStatus(404);
@@ -162,7 +166,7 @@ $app->get('/v1/skill/:id', function($id) use ($app) {
     print json_encode($skillArray);    
 });
 
-$app->delete('/v1/skill/:id', function($id) use ($app) {
+$app->delete('/v1/skills/:id', function($id) use ($app) {
     $hashValidator = new \MentorApp\HashValidator();
     if (!$hashValidator->validate($id)) {
         $app->response->setStatus(404);
@@ -176,7 +180,7 @@ $app->delete('/v1/skill/:id', function($id) use ($app) {
     $app->response->setStatus(200);
 });
 
-$app->post('/v1/skill', function() use ($app)  {
+$app->post('/v1/skills', function() use ($app)  {
     $skillService = new \MentorApp\SkillService($app->db);
     $body = $app->request->getBody();
     $skillArray = json_decode($body, true);
@@ -191,7 +195,7 @@ $app->post('/v1/skill', function() use ($app)  {
     $app->response->setStatus(201);
 });
 
-$app->put('/v1/skill', function() use ($app)   {
+$app->put('/v1/skills', function() use ($app)   {
     $hashValidator = new \MentorApp\HashValidator();
     $skillService = new \MentorApp\SkillService($app->db);
     $body = $app->request->getBody();
@@ -212,7 +216,7 @@ $app->put('/v1/skill', function() use ($app)   {
     $app->response->setStatus(200);
 });
 
-$app->get('/v1/partnership/:id', function($id) use ($app) {
+$app->get('/v1/partnerships/:id', function($id) use ($app) {
     $partnershipManager = new \MentorApp\PartnershipManager($app->db);
 	$role = (!$app->request->get('role')) ? '' : $app->request->get('role');
 	$partnerships = $partnershipManager->retrieveByRole($role, $id);
@@ -240,7 +244,7 @@ $app->get('/v1/partnership/:id', function($id) use ($app) {
     print json_encode($output);
 });    
 
-$app->post('/v1/partnership', function() use ($app) {
+$app->post('/v1/partnerships', function() use ($app) {
     $requestData = $app->request->getBody();
     $data = json_decode($requestData, true);
     if (!isset($data['mentor']) || !isset($data['apprentice'])) {
@@ -261,7 +265,7 @@ $app->post('/v1/partnership', function() use ($app) {
     $app->setStatus(400);
 });
 
-$app->delete('/v1/partnership/:id', function($id) use ($app) {
+$app->delete('/v1/partnerships/:id', function($id) use ($app) {
     $hashValidator = new \MentorApp\HashValidator();
     if (!$hashValidator->validate($id)) {
         $app->response->setStatus(404);
