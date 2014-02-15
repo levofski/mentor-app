@@ -54,6 +54,17 @@ $ bin/phinx migrate -e development
 
 If you don't specify the "-e development" then it will default to development with a warning.
 
+Seeding the Database
+====================
+
+It is useful to have data in the database to interact with the site or the API. Seeding the data is accomplished using a `phing` task.
+
+```
+bin/phing seed-db
+```
+
+The task will prompt you for number of skills to add and number of users. You can choose any number but remember the higher the number the longer it takes.
+
 Behat
 =====
 The following directions assume the host machine is a Mac.  For windows, I don't know what to do...
