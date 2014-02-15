@@ -48,11 +48,17 @@ $app->get('/v1/users/:id', function($id) use ($app) {
         $response['teachingSkills'][] = $skillSerializer->toArray($teachingSkill);
     }
 
+    $response['partnerships'] = [];
     $mentorships = $partnershipManager->retrieveByMentor($id);
     $apprenticeships = $partnershipManager->retrieveByApprentice($id);
-    $response['partnerships'] = array();
-    $response['partnerships']['mentoring'] = $partnershipSerializer->fromArray($mentorships);
-    $response['partnerships']['apprencting'] = $partnershipSerializer->fromArray($apprenticeships); 
+    $response['partnerships']['mentoring'] = [];
+    foreach ($mentorships as $mentorship) {
+        $response['partnerships']['mentoring'][] = $partnershipSerializer->toArray($mentorship);
+    }
+    $response['partnerships']['apprenticing'] = [];
+    foreach ($apprenticeships as $apprenticeship) {
+        $response['partnerships']['apprenticing'] = $partnershipSerializer->toArray($apprenticeship); 
+    }
 
     $app->response->setStatus(200);
     print json_encode($response); 
