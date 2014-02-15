@@ -302,7 +302,7 @@ class UserService
             throw new \RuntimeException('Oh noes! Something went wrong and we weren\'t able to fix it');
         }
         try {
-            $query = "SELECT id FROM `users` WHERE id = :id";
+            $query = "SELECT id FROM `user` WHERE id = :id";
             $statement = $this->db->prepare($query);
             $statement->execute(['id' => $id]);
             if($statement->rowCount() > 0) {
@@ -331,7 +331,7 @@ class UserService
         $offset = ($page - 1) * $results_per_page;
         $userCollection = array(); 
         try {
-            $query = "SELECT $fields FROM `users` ORDER BY `id` LIMIT $offset, $results_per_page";
+            $query = "SELECT $fields FROM `user` ORDER BY `id` LIMIT $offset, $results_per_page";
             $statement = $this->db->prepare($query);
             $statement->execute();
             $users = $statement->fetchAll();

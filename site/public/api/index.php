@@ -108,7 +108,7 @@ $app->post('/v1/users', function() use ($app) {
     $app->response->setStatus(201);
 });        
 
-$app->put('/v1/users/:id', function() use ($app) {
+$app->put('/v1/users/:id', function($id) use ($app) {
     $user = new \MentorApp\User();
     $userService = new \MentorApp\UserService($app->db);
     $skillService = new \MentorApp\SkillService($app->db);
@@ -151,12 +151,12 @@ $app->get('/v1/users', function() use ($app) {
     $userSerializer = new \MentorApp\UserArraySerializer();
     $users = $userService->retrieveAll();
     $response = array();
-    // considered making the serializers able to take single instances
-    // or an array of instances, in the meantime...this is going to have to do.
-    $userCollection = $userSerializer->collectionToArray($users);
-    foreach ($userCollection as $user) {
+    foreach ($users as $user) {
         $learningSkills = $skillService->retrieveByIds($user->learningSkills);
         $teachingSkills = $skillService->retrieveByIds($user->teachingSkills);
+        $serializedUser = $userSerializer->toArray($user);
+        $serializedUser['learningSkills'] = [];
+        $serializedUser['teachingSkills'] = [];
         foreach ($learningSkills as $learn) {
             $serializedUser['learningSkills'][] = $skillSerializer->toArray($learn);
         }
@@ -216,13 +216,13 @@ $app->post('/v1/skills', function() use ($app)  {
     $app->response->setStatus(201);
 });
 
-$app->put('/v1/skills/:id', function() use ($app)   {
+$app->put('/v1/skills/:id', function($id) use ($app)   {
     $hashValidator = new \MentorApp\HashValidator();
     $skillService = new \MentorApp\SkillService($app->db);
     $body = $app->request->getBody();
     $skillArray = json_decode($body, true);
     $skill = new \MentorApp\Skill();
-    ($skillArray['id'] !== null) ? $skill->id = htmlspecialchars($id) : $skill->id = null;
+    ($id !== null) ? $skill->id = htmlspecialchars($id) : $skill->id = null;
     ($skillArray['name'] !== null) ? $skill->name = htmlspecialchars($skillArray['name']) : $skill->name = null;
     ($skillArray['added'] !== null) ? $skill->added = htmlspecialchars($skillArray['added']) : $skill->added = null;
     ($skillArray['authorized'] !== null) ? $skill->authorized = htmlspecialchars($skillArray['authorized']) : $skill->authorized = null; 
@@ -283,7 +283,7 @@ $app->post('/v1/partnerships', function() use ($app) {
         return;
     }
 
-    $app->setStatus(400);
+    $app->response->setStatus(400);
 });
 
 $app->delete('/v1/partnerships/:id', function($id) use ($app) {

@@ -169,7 +169,7 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
 
         $this->db->expects($this->at(0))
             ->method('prepare')
-            ->with('SELECT id FROM `users` WHERE id = :id')
+            ->with('SELECT id FROM `user` WHERE id = :id')
             ->will($this->returnValue($this->statement));
 
         $this->db->expects($this->at(1))
@@ -213,7 +213,7 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
     {
         $this->db->expects($this->at(0))
             ->method('prepare')
-            ->with('SELECT id FROM `users` WHERE id = :id')
+            ->with('SELECT id FROM `user` WHERE id = :id')
             ->will($this->returnValue($this->statement));
 
         $this->statement->expects($this->once())
@@ -441,7 +441,7 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
     public function testExistsReturnsTrueWithProperId()
     {
         $id = '1bcde23bcd';
-        $expectedQuery = "SELECT id FROM `users` WHERE id = :id";
+        $expectedQuery = "SELECT id FROM `user` WHERE id = :id";
 
         $this->db->expects($this->once())
             ->method('prepare')
@@ -465,7 +465,7 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
     public function testExistsReturnsFalseWithImproperId()
     {
         $id = '1bcde23bcd';
-        $expectedQuery = "SELECT id FROM `users` WHERE id = :id";
+        $expectedQuery = "SELECT id FROM `user` WHERE id = :id";
 
         $this->db->expects($this->once())
             ->method('prepare')
