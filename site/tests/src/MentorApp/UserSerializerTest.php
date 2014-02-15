@@ -93,4 +93,30 @@ class UserSerializerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($userObject->mentorAvailable, $user['mentor_available']);
         $this->assertEquals($userObject->apprenticeAvailable, $user['apprentice_available']);
     }
+
+    /**
+     * Test to ensure a collection of instances are serialized correctly
+     */
+    public function testEnsureCollectionIsSerializedCorrectly()
+    {
+        $user = new User();
+        $user->id = '1234b678ed';
+        $user->firstName = 'test';
+        $user->lastName = 'mctesty';
+        $user->email = 'test@testy.com';
+        
+        $stdClass = new \stdClass();
+        $stdClass->id = '66543dedab';
+        $stdClass->firstName = 'Wrongy';
+        $stdClass->lastName = 'McWrongerson';
+        $stdClass->email = 'wrongy@wrongy.com';
+
+        $collection = [$user, $stdClass];
+        $serializer = new UserArraySerializer();
+        $result = $serializer->collectionToArray($collection);
+
+        $this->assertEmpty($result[1]);
+        $this->assertEquals($result[0]['id'], $user->id);
+        $this->assertEquals($result[0]['email'], $user->email);
+    }
 }

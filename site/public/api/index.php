@@ -153,8 +153,8 @@ $app->get('/v1/users', function() use ($app) {
     $response = array();
     // considered making the serializers able to take single instances
     // or an array of instances, in the meantime...this is going to have to do.
-    foreach ($users as $user) {
-        $serializedUser = $userSerializer->toArray($user);
+    $userCollection = $userSerializer->collectionToArray($users);
+    foreach ($userCollection as $user) {
         $learningSkills = $skillService->retrieveByIds($user->learningSkills);
         $teachingSkills = $skillService->retrieveByIds($user->teachingSkills);
         foreach ($learningSkills as $learn) {
