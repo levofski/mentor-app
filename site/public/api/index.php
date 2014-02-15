@@ -144,7 +144,7 @@ $app->put('/v1/users/:id', function() use ($app) {
     $app->response->setStatus(200);
 });
 
-$app->get('/v1/skills', function() use ($app) {
+$app->get('/v1/users', function() use ($app) {
     $skillService = new \MentorApp\SkillService($app->db);
     $skillSerializer = new \MentorApp\SkillArraySerializer();
     $userService = new \MentorApp\UserService($app->db);
@@ -161,11 +161,11 @@ $app->get('/v1/skills', function() use ($app) {
             $serializedUser['learningSkills'][] = $skillSerializer->toArray($learn);
         }
         foreach ($teachingSkills as $teach) {
-            $serializerUser['teachingSkills'][] = $skillSerializer->toArray($teach);
+            $serializedUser['teachingSkills'][] = $skillSerializer->toArray($teach);
         }
         $response[] = $serializedUser;
     }
-    $app-response->setStatus(200);
+    $app->response->setStatus(200);
     print json_encode($response);
 });
 
