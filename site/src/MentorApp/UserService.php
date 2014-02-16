@@ -93,7 +93,7 @@ class UserService
      * passed in and acted upon by the service. 
      *
      * @param \MentorApp\User user user instance
-     * @return boolean indication of whether the user was saved correctly
+     * @return \MentorApp\User|null
      */
     public function create(\MentorApp\User $user)
     {
@@ -114,9 +114,9 @@ class UserService
             $this->saveSkills($user->id, $user->learningSkills, self::SKILL_TYPE_LEARNING);
         } catch (\PDOException $e) {
             // log errors
-            return false;
+            return null;
         }
-        return true;
+        return $user;
     }
 
     /**
