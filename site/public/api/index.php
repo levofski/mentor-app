@@ -175,6 +175,19 @@ $app->get('/v1/users', function() use ($app) {
     print json_encode($response);
 });
 
+$app->get('/v1/skills', function() use ($app) {
+    $skillService = new SkillService($app->db);
+    $skillSerializer = new SkillSerializer();
+    $skillCollection = $skillService->retrieveAll();
+    $skills = array();
+    foreach ($skillCollection as $skill) {
+        $skills[] = $skillSerializer->toArray($skill);
+    }
+
+    $app->response->setStatus(200);
+    print json_encode($skills);
+});
+
 $app->get('/v1/skills/:id', function($id) use ($app) {
     $hashValidator = new \MentorApp\HashValidator();
     if (!$hashValidator->validate($id)) {

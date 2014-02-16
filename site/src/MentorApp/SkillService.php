@@ -70,6 +70,37 @@ class SkillService
     }
 
     /**
+     * Method to return all the skills in the database
+     *
+     * @param int $page the page of results that will be retrieved
+     * @param int $results_per_page number of results for each page
+     * @return array an array of all the skill objects
+     */
+    public function retrieveAll($page = 1, $results_per_page = 50)
+    {
+        if (!is_int($page) || !is_int($results_per_page)) {
+            throw new \RuntimeException('There was an issue retrieving the skills');
+        }
+        $offset = ($page - 1) * $results_per_page;
+        $skillsArray = array();
+        try {
+            $query = "SELECT id, name, authorized, added FROM `skill` ORDER BY id LIMIT $offset, $results_per_page";
+            $statement = $this->db->prepare($query);
+            $statement->execute();
+            while (($skills = $statement->fetch()) !== false) {
+                $skill = new Skill();
+                $skill->id = $skills['id'];
+                $skill->name = $skills['name'];
+                $skill->added = $skills['added'];
+                $skill->authorized = $skills['authorized'];
+                $skillsArray[] = $skill;
+            }
+        } catch (\PDOException $e) {
+            // log it
+        }
+        return $skillsArray;
+    }
+    /**
      * Method to retrieve an array of skills from an array of IDs that are passed in
      *
      * @param array $ids an array of the ids corresponding to skills

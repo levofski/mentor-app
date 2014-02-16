@@ -323,4 +323,71 @@ class SkillServiceTest extends \PHPUnit_Framework_TestCase
         $skillService = new SkillService($this->db);
         $skillReturn = $skillService->save($skill);
     }
+
+    /**
+     * Test to ensure that the retrieveAll method returns an array of Skills
+     * @dataProvider paginationProvider
+     */
+    public function testRetrieveAllMethodReturnsArrayOfSkills($page, $results_per_page)
+    {
+        $skills = array();
+        $skill = array();
+        $skill['id'] = '1234567891';
+        $skill['name'] = 'OOP';
+        $skill['added'] = '2104-02-16 10:10:10';
+        $skill['authorized'] = true;
+        $skills[] = $skill;
+        $skill = array();
+        $skill['id'] = '12345eedea';
+        $skill['name'] = 'git';
+        $skill['added'] = '2104-02-14 10:10:10';
+        $skill['authorized'] = false;
+        $skills[] = $skill;
+        $offset = ($page - 1) * $results_per_page;
+        $this->db->expects($this->once())
+            ->method('prepare')
+            ->with($this->stringContains("ORDER BY id LIMIT $offset, $results_per_page"))
+            ->will($this->returnValue($this->statement));
+        $this->statement->expects($this->once())
+            ->method('execute')
+            ->will($this->returnValue($this->statement));
+        $this->statement->expects($this->at(1))
+            ->method('fetch')
+            ->will($this->returnValue($skills[0]));
+        $this->statement->expects($this->at(2))
+            ->method('fetch')
+            ->will($this->returnValue($skills[1]));
+        $this->statement->expects($this->at(3))
+            ->method('fetch')
+            ->will($this->returnValue(false));
+        $service = new SkillService($this->db);
+        $retrievedSkills = $service->retrieveAll($page, $results_per_page);
+        $this->assertEquals($retrievedSkills[0]->id, $skills[0]['id']);
+        $this->assertEquals($retrievedSkills[1]->name, $skills[1]['name']);
+    }
+
+    /**
+     * Ensure when PDO throws an exception, it is caught and an empty array is returned
+     */
+    public function testPDOExceptionReturnsEmptyArray()
+    {
+        $this->db->expects($this->once())
+            ->method('prepare')
+            ->will($this->throwException(new \PDOException('Did something wrong')));
+        $service = new SkillService($this->db);
+        $result = $service->retrieveAll();
+        $this->assertEmpty($result);
+    }
+
+    /**
+     * Pagination dataProvider
+     */
+    public function paginationProvider()
+    {
+        return array(
+            array(1, 50),
+            array(2, 50),
+            array(4, 15)
+        );
+    }
 }
