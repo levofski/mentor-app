@@ -112,6 +112,9 @@ $app->post('/v1/users', function() use ($app) {
         $app->response->setStatus(400);
     }
     $app->response->setStatus(201);
+    $app->response->header('Location', '/api/v1/users/'.urlencode($user->id));
+    $app->response->header('Content-Type', 'application/json');
+    print json_encode(['id' => $user->id]);
 });        
 
 $app->put('/v1/users/:id', function($id) use ($app) {

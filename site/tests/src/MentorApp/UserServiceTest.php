@@ -203,13 +203,14 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
 
         $userService = new UserService($this->db);
         $savedUser = $userService->create($user);
-        $this->assertTrue($savedUser);
+        $this->assertNotNull($savedUser);
+        $this->assertNotEmpty($savedUser->id);
     }
 
     /**
-     * Test to ensure that PDOException causes the UserService::create to return false
+     * Test to ensure that PDOException causes the UserService::create to return null 
      */
-    public function testPDOExceptionCausesServiceToReturnFalse()
+    public function testPDOExceptionCausesServiceToReturnNull()
     {
         $this->db->expects($this->at(0))
             ->method('prepare')
@@ -241,7 +242,7 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
         $user->timezone = 'America/Chicago';
         $userService = new UserService($this->db);
         $result = $userService->create($user);
-        $this->assertFalse($result);
+        $this->assertNull($result);
     }
 
     /**
