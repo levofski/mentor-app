@@ -197,7 +197,7 @@ class PartnershipManager
             break;
 
             default:
-                $partnerships = $this->retrieve($id);
+                $partnerships = [$this->retrieveById($id)];
         }
         return $partnerships;
     }

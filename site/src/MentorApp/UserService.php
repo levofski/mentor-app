@@ -77,11 +77,7 @@ class UserService
             if ($statement->rowCount() < 1) {
                 return null;
             }
-            $user = new User();
-            foreach ($this->mapping as $property => $dbColumnName) {
-                $user->$property = htmlentities($userData[$dbColumnName]);
-            }
-
+            $user = $this->mapDatabaseResultToUser(new User(), $userData);
             $user->teachingSkills = $this->retrieveSkills($id, self::SKILL_TYPE_TEACHING);
             $user->learningSkills = $this->retrieveSkills($id, self::SKILL_TYPE_LEARNING);
 
@@ -306,7 +302,7 @@ class UserService
             throw new \RuntimeException('Oh noes! Something went wrong and we weren\'t able to fix it');
         }
         try {
-            $query = "SELECT id FROM `users` WHERE id = :id";
+            $query = "SELECT id FROM `user` WHERE id = :id";
             $statement = $this->db->prepare($query);
             $statement->execute(['id' => $id]);
             if($statement->rowCount() > 0) {
@@ -318,4 +314,53 @@ class UserService
         }
         return false;
     }
+
+    /**
+     * Method to retrieve a paginated list of users for the whole application
+     *
+     * @param int $results_per_page the number of results per page
+     * @param int $page the page number to be retrieved
+     * @return array an array of all the users on that page.
+     */
+    public function retrieveAll($page=1, $results_per_page=20)
+    {
+        if (!is_int($results_per_page) || !is_int($page)) {
+            throw new \RuntimeException('Something went wrong, we couldn\'t retrieve the users');
+        }
+        $fields = implode(', ', $this->mapping);
+        $offset = ($page - 1) * $results_per_page;
+        $userCollection = array(); 
+        try {
+            $query = "SELECT $fields FROM `user` ORDER BY `id` LIMIT $offset, $results_per_page";
+            $statement = $this->db->prepare($query);
+            $statement->execute();
+            $users = $statement->fetchAll();
+        } catch(\PDOException $e) {
+            // log it
+        }
+        foreach ($users as $user_result) {
+            $userObject = new User();
+            $user = $this->mapDatabaseResultToUser($userObject, $user_result);
+            $user->teachingSkills = $this->retrieveSkills($user->id, self::SKILL_TYPE_TEACHING);
+            $user->learningSkills = $this->retrieveSkills($user->id, self::SKILL_TYPE_LEARNING);
+            $userCollection[] = $user;
+        }    
+        return $userCollection;
+    } 
+
+    /**
+     * Protected method map the database results to the user object
+     *
+     * @param \MentorApp\User $user an empty user object
+     * @param array $database_result a database result
+     * @return \MentorApp\User a populated user object
+     */
+    protected function mapDatabaseResultToUser(\MentorApp\User $user, array $database_result)
+    {
+        foreach($this->mapping as $key => $value) {
+            $user->$key = (isset($database_result[$value])) ? $database_result[$value] : null;
+        }
+        return $user;
+    }
 }
+

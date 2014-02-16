@@ -51,5 +51,20 @@ class UserArraySerializer implements SerializerInterface
         $user->apprenticeAvailable = (isset($userArray['apprentice_available'])) ? $userArray['apprentice_available'] : null;
         return $user;
     }
+
+    /**
+     * Converts a collection of user objects into an array
+     *
+     * @param array $collection a collection of users
+     * @return array an array representation of those instances
+     */
+    public function collectionToArray(array $collection)
+    {
+        $output = [];
+        foreach ($collection as $user) {
+            $output[] = $this->toArray($user);
+        }
+        return $output;
+    }
 }
  
