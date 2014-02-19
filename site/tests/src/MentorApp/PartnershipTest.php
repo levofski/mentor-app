@@ -34,8 +34,8 @@ class PartnershipTest extends \PHPUnit_Framework_TestCase
         $mentor->id = '1aef234567';
         $apprentice = new User();
         $apprentice->id = '12aef34568';
-        $query = "INSERT INTO partnerships (id, id_mentor, id_apprentice) VALUES (:id, :mentor, :apprentice)";
-        $query .= " ON DUPLICATE KEY UPDATE mentor_id = :mentor";
+        $query = "INSERT INTO partnership (id, id_mentor, id_apprentice) VALUES (:id, :mentor, :apprentice)";
+        $query .= " ON DUPLICATE KEY UPDATE id_mentor = :mentor";
 
         // stubs for the Hash functionality
         $this->db->expects($this->at(0))
@@ -77,8 +77,8 @@ class PartnershipTest extends \PHPUnit_Framework_TestCase
         $mentor->id = '1234567';
         $apprentice = new User();
         $apprentice->id = '1234568';
-        $query = "INSERT INTO partnerships (id, id_mentor, id_apprentice) VALUES (:id, :mentor, :apprentice)";
-        $query .= " ON DUPLICATE KEY UPDATE mentor_id = :mentor";
+        $query = "INSERT INTO partnership (id, id_mentor, id_apprentice) VALUES (:id, :mentor, :apprentice)";
+        $query .= " ON DUPLICATE KEY UPDATE id_mentor = :mentor";
         $this->db->expects($this->at(0))
             ->method('prepare')
             ->with('SELECT id FROM `partnership` WHERE id = :id')

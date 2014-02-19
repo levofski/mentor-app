@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="MentorApp" default="build">
+    <taskdef name="seeddb" classname="tasks.SeedDatabase" />
+    <target name="seed-db">
+        <input propertyname="numskills" promptChar=":" defaultvalue="100">Number of skills</input>
+        <input propertyname="numusers" promptChar=":" defaultvalue="500">Number of users</input>
+        <echo>Seeding database with ${numskills} skills and ${numusers} users.</echo>
+        <seeddb numskills="${numskills}" numusers="${numusers}" />
+    </target>
+</project>

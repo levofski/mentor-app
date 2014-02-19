@@ -49,8 +49,8 @@ class PartnershipManager
     {
         $id = $this->generate();
         try {
-            $query = "INSERT INTO partnerships (id, id_mentor, id_apprentice) VALUES (:id, :mentor, :apprentice)";
-            $query .= " ON DUPLICATE KEY UPDATE mentor_id = :mentor";
+            $query = "INSERT INTO partnership (id, id_mentor, id_apprentice) VALUES (:id, :mentor, :apprentice)";
+            $query .= " ON DUPLICATE KEY UPDATE id_mentor = :mentor";
             $statement = $this->db->prepare($query);
             $statement->execute(['id' => $id, 'mentor' => $mentor->id, 'apprentice' => $apprentice->id]);
             $rowCount = $statement->rowCount();
@@ -197,7 +197,7 @@ class PartnershipManager
             break;
 
             default:
-                $partnerships = $this->retrieve($id);
+                $partnerships = [$this->retrieveById($id)];
         }
         return $partnerships;
     }

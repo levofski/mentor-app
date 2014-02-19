@@ -22,7 +22,7 @@ class SkillArraySerializer implements SerializerInterface
         }
         $response['id'] = htmlspecialchars($skill->id);
         $response['name'] = htmlspecialchars($skill->name);
-        $response['added'] = htmlspecialchars($skill->added);
+        $response['added'] = htmlspecialchars($skill->added->format('Y-m-d H:i:s'));
         return $response;
     }
 
