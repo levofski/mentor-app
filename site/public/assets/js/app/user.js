@@ -1,12 +1,12 @@
 App.User = Backbone.Model.extend({
-    urlRoot: "user/",
+    urlRoot: "/api/v1/users/",
     defaults: {
         id: '',
         first_name: '',
         last_name: '',
-        email_address: '',
-        irc_handle: '',
-        github: '',
+        email: '',
+        irc_nick: '',
+        github_handle: '',
         twitter_handle: '',
         skills: {},
         mentor_available: false,

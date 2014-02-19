@@ -9,9 +9,8 @@ App.UserProfileView = Backbone.View.extend({
         'click .docblock_notation': 'show'
     },
 
-    model: new App.User(),
-
     initialize: function() {
+        this.model.bind('change', _.bind(this.render, this));
         this.render();
     },
     
@@ -22,6 +21,6 @@ App.UserProfileView = Backbone.View.extend({
     },
 
     show: function() {
-        alert('hello');
+       console.log(this.model);
     }
 });
