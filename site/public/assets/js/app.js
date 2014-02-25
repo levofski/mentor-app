@@ -14,7 +14,8 @@ App.init = function() {
         routes: {
             "": "login",
             "profile/:id": "showProfile",
-            "search": "search"
+            "search": "search",
+            "account": "account",
         },
 
         login: function() {
@@ -30,9 +31,14 @@ App.init = function() {
 
        search: function() {
            alert('search');
-       }
-    });
+       },
 
+       account: function() {
+           var user = new App.User({'id': ''});
+           var account = new App.AccountView({model: user});
+       }
+
+    });
     var router = new App.Router();
     Backbone.history.start({pushState: true});
 };
