@@ -58,7 +58,7 @@ class PartnershipManager
                 return false;
             }
         } catch(\PDOException $e) {
-            // log it
+            $app->log->error($e->getMessage() . ' in ' . $e->getFile() . ' on line' . $e->getLine());
             return false;
         }
         return true;
@@ -81,7 +81,7 @@ class PartnershipManager
                 return false;
             }
         } catch(\PDOException $e) {
-            // log it... 
+            $app->log->error($e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
             return false;
         }
         return true;
@@ -110,7 +110,7 @@ class PartnershipManager
             $partnership->apprentice = $row['id_apprentice'];
             return $partnership;
         } catch(\PDOException $e) {
-            // log it
+            $app->log->error($e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
             return null;
         }
     }
@@ -141,7 +141,7 @@ class PartnershipManager
                 $partnerships[] = $partnership;
             }
         } catch (\PDOException $e) {
-            // log it
+            $app->log->error($e->getMessage . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
         }
         return $partnerships;
     }
@@ -172,7 +172,7 @@ class PartnershipManager
                 $partnerships[] = $partnership;
             }
         } catch(\PDOException $e) {
-            // log it
+            $app->log->error($e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
         }
         return $partnerships;
     } 
