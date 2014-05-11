@@ -7,7 +7,9 @@
     "behat/mink-extension":"*",
     "behat/mink-goutte-driver":"*",
     "behat/mink-selenium2-driver":"*",
-    "robmorgan/phinx": "*"
+    "robmorgan/phinx": "*",
+    "fkooman/guzzle-bearer-auth-plugin": "dev-master",
+    "fkooman/php-oauth-client": "dev-master"
   },
   "require-dev": {
     "whatthejeff/nyancat-phpunit-resultprinter":"~1.1",

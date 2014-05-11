@@ -19,9 +19,11 @@ App.init = function() {
         },
 
         login: function() {
+			/**
             var user = new App.User({'id': '003ed1ea5a'});
             var profile = new App.UserProfileView({model: user});
-            
+            */
+			var login = new App.Login();
         },
 
        showProfile: function(id) {

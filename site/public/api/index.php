@@ -5,6 +5,12 @@ $app = new \Slim\Slim();
 // load in the config
 require_once '../../config/environment.php';
 require_once '../../config/database.php';
+require_once '../../config/oauth.php';
+
+// spin up sessions
+// @todo: move this to cookie based sessions
+session_cache_limiter(false);
+session_start();
 
 // setup constants for use in the endpoints
 define("PARTNERSHIP_ROLE_MENTOR", "mentor");
@@ -16,6 +22,84 @@ $app->db = new \PDO(
     $config['database'][$config['environment']]['username'],
     $config['database'][$config['environment']]['password']
 );
+
+/**
+ * Handles oauth based callbacks
+ */
+$app->get('/v1/oauth', function() use ($app, $clientConfig) {
+    try {
+        $cb = new fkooman\OAuth\Client\Callback("foo", $clientConfig[$_SESSION['oauth_session']['type']],
+            new fkooman\OAuth\Client\SessionStorage(),
+            new \Guzzle\Http\Client());
+
+        $cb->handleCallback($_GET);
+
+        header("HTTP/1.1 302 Found");
+        header("Location: http://www.example.org/index.php");
+    } catch (AuthorizeException $e) {
+        // this exception is thrown by Callback when the OAuth server returns a
+        // specific error message for the client, e.g.: the user did not authorize
+        // the request
+        echo sprintf("ERROR: %s, DESCRIPTION: %s", $e->getMessage(), $e->getDescription());
+    } catch (\Exception $e) {
+        // other error, these should never occur in the normal flow
+        echo sprintf("ERROR: %s", $e->getMessage());
+    }
+});
+
+/**
+ * Handles Github oauth based authentication
+ */
+$app->get('/v1/oauth/github', function() use ($app, $clientConfig) {
+    $api = new fkooman\OAuth\Client\Api("foo", $clientConfig['github'],
+        new fkooman\OAuth\Client\SessionStorage(), new \Guzzle\Http\Client());
+
+    unset($_SESSION['oauth_session']);
+    // generates session token for use in identifying any prior sessions
+    if (!isset($_SESSION['oauth_session'])) {
+        $_SESSION['oauth_session'] = array(
+            'key' => substr(md5(time() . rand()), 0, 8),
+            'type' => 'github'
+        );
+    }
+
+    // generates context for this oauth_session
+    $context = new fkooman\OAuth\Client\Context($_SESSION['oauth_session']['key'], array("user"));
+
+    $accessToken = $api->getAccessToken($context);
+
+    if (false === $accessToken) {
+        /* no valid access token available, go to authorization server */
+        // @todo if slim has a redirect method, lets use it instead
+        header("HTTP/1.1 302 Found");
+        header("Location: " . $api->getAuthorizeUri($context));
+        exit;
+    }
+
+    $apiUrl = 'http://mentorapp.dev:8080/v1/oauth'; // not even sure what this is for...
+
+    try {
+        $client = new Client();
+        $bearerAuth = new BearerAuth($accessToken->getAccessToken());
+        $client->addSubscriber($bearerAuth);
+        $response = $client->get($apiUrl)->send();
+
+        header("Content-Type: application/json");
+        echo $response->getBody();
+    } catch (BearerErrorResponseException $e) {
+        if ("invalid_token" === $e->getBearerReason()) {
+            // the token we used was invalid, possibly revoked, we throw it away
+            $api->deleteAccessToken($context);
+            $api->deleteRefreshToken($context);
+
+            /* no valid access token available, go to authorization server */
+            header("HTTP/1.1 302 Found");
+            header("Location: " . $api->getAuthorizeUri($context));
+            exit;
+        }
+        throw $e;
+    }
+});
 
 $app->get('/v1/users/:id', function($id) use ($app) {
     // add authentication, authz shouldn't matter here
