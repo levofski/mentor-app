@@ -14,6 +14,18 @@ class Auth {
         $this->app = $app;
     }
 
+    /**
+     * Starts the OAuth cascade. Initially this checks to see if there is a cookie set with token associates, if so,
+     * it will validate based on that. If not, it will create a new association and return the authorization status
+     * based on which action it takes. There are dragons here, so tread lightly.
+     *
+     * @param $type
+     * @param array $scope
+     * @param \fkooman\OAuth\Client\ClientConfig $clientConfig
+     * @return bool|string
+     * @throws \Exception
+     * @throws BearerErrorResponseException
+     */
     public function initialOAuth($type, array $scope, \fkooman\OAuth\Client\ClientConfig $clientConfig) {
         $tokenStorage = new \fkooman\OAuth\Client\PdoStorage($this->app->db);
         $httpClient = new \Guzzle\Http\Client();
@@ -38,6 +50,7 @@ class Auth {
             return $api->getAuthorizeUri($context);
         } else {
             try {
+                /* we found a token, lets validate it */
                 $client = new \Guzzle\Http\Client();
                 $bearerAuth = new \fkooman\Guzzle\Plugin\BearerAuth\BearerAuth($accessToken->getAccessToken());
                 $client->addSubscriber($bearerAuth);
@@ -59,6 +72,12 @@ class Auth {
         return false;
     }
 
+    /**
+     * Handles the response and storage of tokens from an OAuth callback, magic things happen here - don't ask me what.
+     *
+     * @param \fkooman\OAuth\Client\ClientConfig $clientConfig
+     * @return bool
+     */
     public function callbackOAuth(\fkooman\OAuth\Client\ClientConfig $clientConfig) {
         try {
             $tokenStorage = new \fkooman\OAuth\Client\PdoStorage($this->app->db);
@@ -68,8 +87,10 @@ class Auth {
 
             $cb->handleCallback($_GET);
 
-            header("HTTP/1.1 302 Found");
-            header("Location: http://www.example.org/index.php");
+            /** @todo :: either we setup associating the user here or let the client side handle making the
+             * associations and associated queries **/
+
+            return true;
         } catch (AuthorizeException $e) {
             // this exception is thrown by Callback when the OAuth server returns a
             // specific error message for the client, e.g.: the user did not authorize
@@ -79,12 +100,12 @@ class Auth {
             // other error, these should never occur in the normal flow
             echo sprintf("ERROR: %s", $e->getMessage());
         }
+
+        return false;
     }
 
-
-
     /**
-     * Fetches a stored oauth token based on the stored unique id
+     * Fetches a stored oauth token based on the session based unique id
      *
      * @return bool|string
      */
