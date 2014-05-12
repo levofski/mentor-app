@@ -3,14 +3,10 @@ require_once('../../vendor/autoload.php');
 $app = new \Slim\Slim();
 
 // load in the config
-require_once '../../config/environment.php';
-require_once '../../config/database.php';
-require_once '../../config/oauth.php';
+require_once('../../config/config.php');
 
 // spin up sessions
-// @todo: move this to cookie based sessions
-session_cache_limiter(false);
-session_start();
+$app->add(new \Slim\Middleware\SessionCookie($session));
 
 // setup constants for use in the endpoints
 define("PARTNERSHIP_ROLE_MENTOR", "mentor");
@@ -27,77 +23,42 @@ $app->db = new \PDO(
  * Handles oauth based callbacks
  */
 $app->get('/v1/oauth', function() use ($app, $clientConfig) {
-    try {
-        $cb = new fkooman\OAuth\Client\Callback("foo", $clientConfig[$_SESSION['oauth_session']['type']],
-            new fkooman\OAuth\Client\SessionStorage(),
-            new \Guzzle\Http\Client());
+    $auth = new \MentorApp\Auth($app);
 
-        $cb->handleCallback($_GET);
+    // @todo :: setup response handlers here instead of in the business logic
+    $auth->callbackOAuth($clientConfig[$_SESSION['oauth_session']['type']]);
+});
 
-        header("HTTP/1.1 302 Found");
-        header("Location: http://www.example.org/index.php");
-    } catch (AuthorizeException $e) {
-        // this exception is thrown by Callback when the OAuth server returns a
-        // specific error message for the client, e.g.: the user did not authorize
-        // the request
-        echo sprintf("ERROR: %s, DESCRIPTION: %s", $e->getMessage(), $e->getDescription());
-    } catch (\Exception $e) {
-        // other error, these should never occur in the normal flow
-        echo sprintf("ERROR: %s", $e->getMessage());
+/**
+ * Handles oauth based authentication
+ */
+$app->get('/v1/oauth/:type', function($type) use ($app, $clientConfig) {
+    $app->response->headers->set('Content-Type', 'application/json');
+
+    $auth = new \MentorApp\Auth($app);
+    $result = $auth->initialOAuth($type, array("user"), $clientConfig[$type]);
+
+    if (is_string($result)) {
+        $app->response->setBody(json_encode(array('redirect' => $result)));
+    } elseif ($result) {
+        $app->response->setBody(json_encode(array('status' => 'success')));
+    } else {
+        $app->response->setStatus(403);
     }
 });
 
 /**
- * Handles Github oauth based authentication
+ * Retrieves github profile information for the authorized (logged in) user
  */
-$app->get('/v1/oauth/github', function() use ($app, $clientConfig) {
-    $api = new fkooman\OAuth\Client\Api("foo", $clientConfig['github'],
-        new fkooman\OAuth\Client\SessionStorage(), new \Guzzle\Http\Client());
+$app->get('/v1/git/profile', function () use ($app) {
+    $app->response->headers->set('Content-Type', 'application/json');
 
-    unset($_SESSION['oauth_session']);
-    // generates session token for use in identifying any prior sessions
-    if (!isset($_SESSION['oauth_session'])) {
-        $_SESSION['oauth_session'] = array(
-            'key' => substr(md5(time() . rand()), 0, 8),
-            'type' => 'github'
-        );
-    }
+    $github = new \MentorApp\Github($app, new \MentorApp\Auth($app));
 
-    // generates context for this oauth_session
-    $context = new fkooman\OAuth\Client\Context($_SESSION['oauth_session']['key'], array("user"));
-
-    $accessToken = $api->getAccessToken($context);
-
-    if (false === $accessToken) {
-        /* no valid access token available, go to authorization server */
-        // @todo if slim has a redirect method, lets use it instead
-        header("HTTP/1.1 302 Found");
-        header("Location: " . $api->getAuthorizeUri($context));
-        exit;
-    }
-
-    $apiUrl = 'http://mentorapp.dev:8080/v1/oauth'; // not even sure what this is for...
-
-    try {
-        $client = new Client();
-        $bearerAuth = new BearerAuth($accessToken->getAccessToken());
-        $client->addSubscriber($bearerAuth);
-        $response = $client->get($apiUrl)->send();
-
-        header("Content-Type: application/json");
-        echo $response->getBody();
-    } catch (BearerErrorResponseException $e) {
-        if ("invalid_token" === $e->getBearerReason()) {
-            // the token we used was invalid, possibly revoked, we throw it away
-            $api->deleteAccessToken($context);
-            $api->deleteRefreshToken($context);
-
-            /* no valid access token available, go to authorization server */
-            header("HTTP/1.1 302 Found");
-            header("Location: " . $api->getAuthorizeUri($context));
-            exit;
-        }
-        throw $e;
+    if ($response = $github->getProfile()) {
+        $app->response->setBody($response->getBody());
+    } else {
+        $app->response->setBody(json_encode(array('status' => 'error')));
     }
 });
 
@@ -108,8 +69,24 @@ $app->get('/v1/users/:id', function($id) use ($app) {
         $app->response->setStatus(404);
         return;
     }
+
     $response = array();
     $userService = new \MentorApp\UserService($app->db);
+
+    // handles third party login requests for user profile
+    if (isset($_GET['third_party'])) {
+        switch ($_GET['third_party']) {
+            case 'github':
+                $id = $userService->getUserId('github', $id);
+                break;
+            case 'twitter':
+                $id = $userService->getUserId('twitter', $id);
+                break;
+            default:
+                $id = null;
+        }
+    }
+
     $userResponse = $userService->retrieve($id);
     $skillService = new \MentorApp\SkillService($app->db);
     $partnershipManager = new \MentorApp\PartnershipManager($app->db);
