@@ -1,7 +1,9 @@
 window.App = {};
+window.Mentor = {}; // this is our global for storing important things
 
 App.init = function() {
-    var UserProfile = null;
+    window.Mentor.apiUrl = 'http://mentorapp.dev:8080/api/v1';
+    window.Mentor.user = null;
 
     $.ajaxSetup({
         'dataType': 'json'
@@ -12,18 +14,22 @@ App.init = function() {
     App.Router = Backbone.Router.extend({
 
         routes: {
-            "": "login",
+            "": "home",
+            "login": "login",
             "profile/:id": "showProfile",
             "search": "search",
             "account": "account",
         },
 
+        home: function() {
+
+        },
         login: function() {
 			/**
             var user = new App.User({'id': '003ed1ea5a'});
             var profile = new App.UserProfileView({model: user});
             */
-			var login = new App.Login();
+			var login = new App.LoginView();
         },
 
        showProfile: function(id) {
