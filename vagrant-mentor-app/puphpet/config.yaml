@@ -30,7 +30,7 @@ vagrantfile-local:
                     - '--parser future'
         synced_folder:
             DwBxDYBBwLF8:
-                source: ./www
+                source: ../site/public
                 target: /var/www
                 nfs: 'false'
         usable_port_range: 2200..2250
