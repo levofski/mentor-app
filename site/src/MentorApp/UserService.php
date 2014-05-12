@@ -38,8 +38,10 @@ class UserService
         'lastName' => 'last_name',
         'email' => 'email',
         'githubHandle' => 'github_handle',
+        'githubUid' => 'github_uid',
         'ircNick' => 'irc_nick',
         'twitterHandle' => 'twitter_handle',
+        'twitterUid' => 'twitter_uid',
         'mentorAvailable' => 'mentor_available',
         'apprenticeAvailable' => 'apprentice_available',
         'timezone' => 'timezone'
@@ -82,6 +84,34 @@ class UserService
             $user->learningSkills = $this->retrieveSkills($id, self::SKILL_TYPE_LEARNING);
 
             return $user;
+        } catch (\PDOException $e) {
+            // log the error
+            return null;
+        }
+    }
+
+    /**
+     * Retrieves the user id that is associated with the given [$column]_uid
+     *
+     * @param $column
+     * @param $id
+     * @return mixed|null
+     */
+    public function getUserId($column, $id) {
+        if (!$this->validateHash($id)) {
+            return null;
+        }
+
+        try {
+            $query = 'SELECT id FROM user WHERE '. $column . '_uid = :id';
+            $statement = $this->db->prepare($query);
+            $statement->execute(array('id' => $id));
+            $results = $statement->fetch();
+            if ($statement->rowCount() < 1) {
+                return null;
+            }
+
+            return $results;
         } catch (\PDOException $e) {
             // log the error
             return null;

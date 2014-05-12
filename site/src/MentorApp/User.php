@@ -34,9 +34,14 @@ class User
     public $email;
 
     /**
-     * @var string githubHandle github handle for the user
+     * @var string github  github handle for the user
      */
     public $githubHandle;
+
+    /**
+     * @var int githubUid github user id
+     */
+    public $githubUid;
 
     /**
      * @var string ircNick irc nickname for the user
@@ -47,6 +52,11 @@ class User
      * @var string twitterHandle twitter hanle for the user
      */
     public $twitterHandle;
+
+    /**
+     * @var int twitterUid twitter user id
+     */
+    public $twitterUid;
 
     /**
      * @var boolean mentorAvailable indicates whether user is accepting apprentices
