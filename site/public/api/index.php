@@ -26,7 +26,11 @@ $app->get('/v1/oauth', function() use ($app, $clientConfig) {
     $auth = new \MentorApp\Auth($app);
 
     // @todo :: setup response handlers here instead of in the business logic
-    $auth->callbackOAuth($clientConfig[$_SESSION['oauth_session']['type']]);
+    if ($auth->callbackOAuth($clientConfig[$_SESSION['oauth_session']['type']])) {
+        $app->response->redirect('/doLogin/' . $_SESSION['oauth_session']['type'], 302);
+    } else {
+        $app->response->redirect('/', 302);
+    }
 });
 
 /**
@@ -41,7 +45,7 @@ $app->get('/v1/oauth/:type', function($type) use ($app, $clientConfig) {
     if (is_string($result)) {
         $app->response->setBody(json_encode(array('redirect' => $result)));
     } elseif ($result) {
-        $app->response->setBody(json_encode(array('status' => 'success')));
+        $app->response->setBody(json_encode(array('redirect' => '/doLogin/' . $type)));
     } else {
         $app->response->setStatus(403);
     }
@@ -50,7 +54,7 @@ $app->get('/v1/oauth/:type', function($type) use ($app, $clientConfig) {
 /**
  * Retrieves github profile information for the authorized (logged in) user
  */
-$app->get('/v1/git/profile', function () use ($app) {
+$app->get('/v1/github/profile', function () use ($app) {
     $app->response->headers->set('Content-Type', 'application/json');
 
     $github = new \MentorApp\Github($app, new \MentorApp\Auth($app));
@@ -63,13 +67,6 @@ $app->get('/v1/git/profile', function () use ($app) {
 });
 
 $app->get('/v1/users/:id', function($id) use ($app) {
-    // add authentication, authz shouldn't matter here
-    $hashValidator = new \MentorApp\HashValidator();
-    if (!$hashValidator->validate($id)) {
-        $app->response->setStatus(404);
-        return;
-    }
-
     $response = array();
     $userService = new \MentorApp\UserService($app->db);
 
@@ -85,6 +82,13 @@ $app->get('/v1/users/:id', function($id) use ($app) {
             default:
                 $id = null;
         }
+    }
+
+    // add authentication, authz shouldn't matter here
+    $hashValidator = new \MentorApp\HashValidator();
+    if (!$hashValidator->validate($id)) {
+        $app->response->setStatus(404);
+        return;
     }
 
     $userResponse = $userService->retrieve($id);
@@ -150,7 +154,9 @@ $app->post('/v1/users', function() use ($app) {
     $user->lastName = filter_var($dataArray['last_name'], FILTER_SANITIZE_STRING);
     $user->email = filter_var($dataArray['email'], FILTER_SANITIZE_EMAIL);
     $user->githubHandle = filter_var($dataArray['github_handle'], FILTER_SANITIZE_STRING);
+    $user->githubUid = filter_var($dataArray['github_uid'], FILTER_SANITIZE_STRING);
     $user->twitterHandle = filter_var($dataArray['twitter_handle'], FILTER_SANITIZE_STRING);
+    $user->twitterUid = filter_var($dataArray['twitter_uid'], FILTER_SANITIZE_STRING);
     $user->ircNick = filter_var($dataArray['irc_nick'], FILTER_SANITIZE_STRING);
     $user->mentorAvailable = ($dataArray['mentor_available'] == 1) ? 1 : 0;
     $user->apprenticeAvailable = $dataArray['apprentice_available'] ? 1 : 0;
@@ -162,11 +168,10 @@ $app->post('/v1/users', function() use ($app) {
         $user->teachingSkills[] = $skillService->retrieve($id);
     }
 
-    foreach ($dataArray['learning_skills'] as $learning)
-    {
+    foreach ($dataArray['learning_skills'] as $learning) {
         $id = filter_var($learning, '/^[0-9a-f]{10}$/');
         $user->learningSkills[] = $skillService->retrieve($id);
-    } 
+    }
 
     $savedUser = $userService->create($user);
     if (!$savedUser) {
