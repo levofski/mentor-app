@@ -4,5 +4,7 @@ vagrant-mentor-app/.vagrant/
 site/vendor/
 site/bin/
 site/index.html
+site/html/
 vagrant-mentor-app/puphpet/files/dot/ssh/id_rsa
 vagrant-mentor-app/puphpet/files/dot/ssh/id_rsa.pub
+
