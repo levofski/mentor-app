@@ -8,7 +8,7 @@ Vagrant
 
 The system is bundled with a Vagrant set up, so you can get up and running quickly and in a common environment.
 
-To get the Vagrant system running, go to vagrant-mentor-app-php5.4 and run the following:
+To get the Vagrant system running, go to vagrant-mentor-app and run the following:
 
 $ vagrant up
 
@@ -16,11 +16,11 @@ This will start the vagrant instance for you. To access the web server on either
 
 http://localhost:8080/
 OR
-http://mentorapp.dev:8080/
+http://mentorapp.dev
 
 To access mentorapp.dev you will need to add the following to your hosts file:
 
-127.0.0.1   mentorapp.dev
+192.168.56.201   mentorapp.dev
 
 If you need to access your Vagrant machine at any time you can go in to the relevant directory and run:
 
@@ -71,7 +71,7 @@ The following directions assume the host machine is a Mac.  For windows, I don't
 To get started with Behat:
 * First, on the host machine (your Mac), download the [Chrome Webdriver](http://chromedriver.storage.googleapis.com/index.html) and place it in a convenient place.  A good spot is to create a `bin` directory within your home directory and place it there (`~/bin`).
 * Again, on the host machine (your Mac), download the [Selenium Stand-alone server](http://selenium.googlecode.com/files/selenium-server-standalone-2.35.0.jar) and place it in the same `bin` directory where you placed the Webdriver.
-  *(Optional) Create an alias to start the selenium server.  For example: `alias behat='java -jar ~/bin/selenium-server-standalone-2.35.0.jar -host 192.168.56.1`
+  *(Optional) Create an alias to start the selenium server.  For example: `alias behat='java -jar ~/bin/selenium-server-standalone-2.35.0.jar -host 192.168.56.201`
 * Before you can run the behat tests, you must start the selenium server on the host machine.  From the terminal, simply type “behat” and the server should start running.
 * To run the tests, SSH into the VM, go to the root of the project (`/var/www` - same directory as the behat.yml file) and type `bin/behat`.  If you are using vagrant, then the VM must be running and you must be within an SSH session (vagrant ssh).
 
