@@ -19,6 +19,8 @@ class Github {
 
     /**
      * Queries the Github API for profile information
+     *
+     * @return bool|\Guzzle\Http\Message\Response
      */
     public function getProfile() {
         if ($this->token) {
