@@ -54,8 +54,8 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
         $this->mockData['first_name'] = 'Mike';
         $this->mockData['last_name'] = 'Jones';
         $this->mockData['email'] = 'mikejones@who.com';
-        $expectedQuery = "SELECT id, first_name, last_name, email, github_handle, irc_nick, ";
-        $expectedQuery .= "twitter_handle, mentor_available, apprentice_available, ";
+        $expectedQuery = "SELECT id, first_name, last_name, email, github_handle, github_uid, irc_nick, ";
+        $expectedQuery .= "twitter_handle, twitter_uid, mentor_available, apprentice_available, ";
         $expectedQuery .= "timezone FROM user WHERE id = :id";
         $teachingQuery = 'SELECT id_tag FROM teaching_skills WHERE id_user = :id';
         $learningQuery = 'SELECT id_tag FROM learning_skills WHERE id_user = :id';
@@ -136,10 +136,10 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
     public function testEnsureUserIsCreated()
     {
         $expectedQuery = 'INSERT INTO user (id, first_name, last_name, email, ';
-        $expectedQuery .= 'github_handle, irc_nick, twitter_handle, mentor_available, ';
+        $expectedQuery .= 'github_handle, github_uid, irc_nick, twitter_handle, twitter_uid, mentor_available, ';
         $expectedQuery .= 'apprentice_available, ';
         $expectedQuery .= 'timezone) VALUES (:id, :first_name, :last_name, :email, ';
-        $expectedQuery .= ':github_handle, :irc_nick, :twitter_handle, :mentor_available, ';
+        $expectedQuery .= ':github_handle, :github_uid, :irc_nick, :twitter_handle, :twitter_uid, :mentor_available, ';
         $expectedQuery .= ':apprentice_available, :timezone)';
         $teachingQuery = 'INSERT INTO teaching_skills (id_user, id_tag) VALUES (:user, :tag)';
         $learningQuery = 'INSERT INTO learning_skills (id_user, id_tag) VALUES (:user, :tag)';
@@ -149,8 +149,10 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
         $user->lastName = 'User';
         $user->email = 'test.user@gmail.com';
         $user->githubHandle = 'testuser';
+        $user->githubUid = '123456';
         $user->ircNick = 'testUser';
         $user->twitterHandle = '@testUser';
+        $user->twitterUid = '123456';
         $user->mentor_available = true;
         $user->apprentice_available = false;
         $user->timezone = 'America/Chicago';
@@ -160,8 +162,10 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
             'last_name' => $user->lastName,
             'email' => $user->email,
             'github_handle' => $user->githubHandle,
+            'github_uid' => $user->githubUid,
             'irc_nick' => $user->ircNick,
             'twitter_handle' => $user->twitterHandle,
+            'twitter_uid' => $user->twitterUid,
             'mentor_available' => $user->mentorAvailable,
             'apprentice_available' => $user->apprenticeAvailable,
             'timezone' => $user->timezone,
@@ -257,8 +261,10 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
         $user->lastName = 'User';
         $user->email = 'test.user@gmail.com';
         $user->githubHandle = 'testUser';
+        $user->githubUid = '123456';
         $user->ircNick = 'testuser';
         $user->twitterHandle = '@testUser';
+        $user->twitterUid = '123456';
         $user->mentorAvailable = true;
         $user->apprenticeAvailable = false;
         $user->timezone = 'America/Chicago';
@@ -270,15 +276,18 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
         $valueArray['last_name'] = $user->lastName;
         $valueArray['email'] = $user->email;
         $valueArray['github_handle'] = $user->githubHandle;
+        $valueArray['github_uid'] = $user->githubUid;
         $valueArray['irc_nick'] = $user->ircNick;
         $valueArray['twitter_handle'] = $user->twitterHandle;
+        $valueArray['twitter_uid'] = $user->twitterUid;
         $valueArray['mentor_available'] = $user->mentorAvailable;
         $valueArray['apprentice_available'] = $user->apprenticeAvailable;
         $valueArray['timezone'] = $user->timezone;
 
         // build the expected query for user
         $expectedQuery = "UPDATE user SET id=:id, first_name=:first_name, last_name=:last_name, ";
-        $expectedQuery .= "email=:email, github_handle=:github_handle, irc_nick=:irc_nick, twitter_handle=:twitter_handle, ";
+        $expectedQuery .= "email=:email, github_handle=:github_handle, github_uid=:github_uid, irc_nick=:irc_nick, ";
+        $expectedQuery .= "twitter_handle=:twitter_handle, twitter_uid=:twitter_uid, ";
         $expectedQuery .= "mentor_available=:mentor_available, apprentice_available=:apprentice_available, ";
         $expectedQuery .= "timezone=:timezone WHERE id=:id";
 
@@ -325,9 +334,11 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
         $user->firstName = 'Test';
         $user->lastName = 'User';
         $user->email = 'test.user@gmail.com';
-        $user->githubHandle = 'testuser';
-        $user->ircNick = 'testUser';
+        $user->githubHandle = 'testUser';
+        $user->githubUid = '123456';
+        $user->ircNick = 'testuser';
         $user->twitterHandle = '@testUser';
+        $user->twitterUid = '123456';
         $user->mentorAvailable = true;
         $user->apprenticeAvailable = false;
         $user->timezone = 'America/Chicago';
@@ -339,15 +350,18 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
         $valueArray['last_name'] = $user->lastName;
         $valueArray['email'] = $user->email;
         $valueArray['github_handle'] = $user->githubHandle;
+        $valueArray['github_uid'] = $user->githubUid;
         $valueArray['irc_nick'] = $user->ircNick;
         $valueArray['twitter_handle'] = $user->twitterHandle;
+        $valueArray['twitter_uid'] = $user->twitterUid;
         $valueArray['mentor_available'] = $user->mentorAvailable;
         $valueArray['apprentice_available'] = $user->apprenticeAvailable;
         $valueArray['timezone'] = $user->timezone;
 
         // build the expected query for user
         $expectedQuery = "UPDATE user SET id=:id, first_name=:first_name, last_name=:last_name, ";
-        $expectedQuery .= "email=:email, github_handle=:github_handle, irc_nick=:irc_nick, twitter_handle=:twitter_handle, ";
+        $expectedQuery .= "email=:email, github_handle=:github_handle, github_uid=:github_uid, irc_nick=:irc_nick, ";
+        $expectedQuery .= "twitter_handle=:twitter_handle, twitter_uid=:twitter_uid, ";
         $expectedQuery .= "mentor_available=:mentor_available, apprentice_available=:apprentice_available, ";
         $expectedQuery .= "timezone=:timezone WHERE id=:id";
 
@@ -405,8 +419,8 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
     public function testNullIsReturnedIfNoResultsAreFound()
     {
         $id = '1bcde23bcd';
-        $expectedQuery = "SELECT id, first_name, last_name, email, github_handle, irc_nick, ";
-        $expectedQuery .= "twitter_handle, mentor_available, apprentice_available, ";
+        $expectedQuery = "SELECT id, first_name, last_name, email, github_handle, github_uid, irc_nick, ";
+        $expectedQuery .= "twitter_handle, twitter_uid, mentor_available, apprentice_available, ";
         $expectedQuery .= "timezone FROM user WHERE id = :id";
 
         $this->db->expects($this->once())
