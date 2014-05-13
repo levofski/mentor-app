@@ -3,7 +3,7 @@ Welcome to your custom Vagrant/Puppet setup powered by puPHPet
 
 The setup includes:
 -------------------
-* box:       precise64 (http://files.vagrantup.com/precise64.box)
+* box:       ubuntu-precise12042-x64-vbox43 (http://box.puphpet.com/ubuntu-precise12042-x64-vbox43.box)
 * webserver: apache
 * database:  mysql
 * PHP:       PHP 5.5
