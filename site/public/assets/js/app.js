@@ -3,7 +3,7 @@ window.Mentor = {}; // this is our global for storing important things
 
 App.init = function() {
     window.Mentor.apiUrl = 'http://mentorapp.dev:8080/api/v1';
-    window.Mentor.user = null;
+    window.Mentor.user = { status: 0 };
 
     $.ajaxSetup({
         'dataType': 'json'
@@ -12,42 +12,42 @@ App.init = function() {
     Backbone.emulateHTTP = true;
     
     App.Router = Backbone.Router.extend({
-
         routes: {
             "": "home",
             "login": "login",
+            "doLogin/:type": "doLogin",
+            "newUser/:type": "newUser",
             "profile/:id": "showProfile",
             "search": "search",
-            "account": "account",
+            "account": "account"
         },
-
-        home: function() {
-
-        },
+        home: function() {},
         login: function() {
-			/**
+            /**
             var user = new App.User({'id': '003ed1ea5a'});
             var profile = new App.UserProfileView({model: user});
             */
-			var login = new App.LoginView();
+            new App.LoginView();
         },
-
-       showProfile: function(id) {
+        newUser: function(type) {
+            var user = new App.User({type: type});
+            new App.AccountView({model: user});
+        },
+        doLogin: function(type) {
+            new App.Login({type: type});
+        },
+        showProfile: function(id) {
             var user = new App.User({'id': id});
-            var profile = new App.UserProfileView({model: user});
-       },
-
-       search: function() {
+            new App.UserProfileView({model: user});
+        },
+        search: function() {
            alert('search');
-       },
-
-       account: function() {
+        },
+        account: function() {
            var user = new App.User({'id': ''});
-           var account = new App.AccountView({model: user});
-       }
-
+           new App.AccountView({model: user});
+        }
     });
     var router = new App.Router();
     Backbone.history.start({pushState: true});
 };
-
