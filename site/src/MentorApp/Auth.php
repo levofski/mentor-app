@@ -87,9 +87,6 @@ class Auth {
 
             $cb->handleCallback($_GET);
 
-            /** @todo :: either we setup associating the user here or let the client side handle making the
-             * associations and associated queries **/
-
             return true;
         } catch (AuthorizeException $e) {
             // this exception is thrown by Callback when the OAuth server returns a
