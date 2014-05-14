@@ -25,7 +25,14 @@ App.LoginView = Backbone.View.extend({
             dataType: "json",
             success: function(data){
                 if (_.isObject(data) && !_.isEmpty(data.redirect)) {
-                    window.location = data.redirect;
+                    if (data.redirect == '/doLogin') {
+                        // internal redirect
+                        Backbone.history.navigate(data.redirect, true);
+                    } else {
+                        // external
+                        window.location = data.redirect;
+                    }
+
                 }
             }
         });
