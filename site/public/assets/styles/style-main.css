@@ -290,3 +290,15 @@ body,
 		font-size: 1em;
 	}
 }
+
+.form-element {
+    margin: 10px 0;
+}
+
+span.label {
+    font-family: Helvetica;
+}
+
+.form-element input {
+    margin-left: 20px;
+}
