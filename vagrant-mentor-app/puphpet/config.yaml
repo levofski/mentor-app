@@ -11,7 +11,7 @@ vagrantfile-local:
                     host: '9427'
                     guest: '22'
                 5blwVHDW8gNU:
-                    host: '8080'
+                    host: '9091'
                     guest: '80'
         provider:
             virtualbox:
@@ -30,7 +30,7 @@ vagrantfile-local:
                     - '--parser future'
         synced_folder:
             DwBxDYBBwLF8:
-                source: ../site/public
+                source: ../site
                 target: /var/www
                 nfs: 'false'
         usable_port_range: 2200..2250
@@ -80,7 +80,7 @@ apache:
     vhosts:
         ufaJZX5gM6tF:
             servername: mentorapp.dev
-            docroot: /var/www
+            docroot: /var/www/public
             port: '80'
             setenv:
                 - 'APP_ENV dev'
@@ -155,9 +155,9 @@ mysql:
             grant:
                 - ALL
             name: mentor
-            host: mentor
+            host: localhost
             user: mentor
-            password: '123'
+            password: 'mentor'
             sql_file: ''
 postgresql:
     install: 0
