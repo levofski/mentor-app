@@ -7,8 +7,8 @@
 
 // Defines the database configurations
 $config['database'] = [
-    // Database configuration details for 'development'
-    'development' => [
+    // Database configuration details for 'dev'
+    'dev' => [
         'hostname' => 'localhost',
         'username' => 'mentor',
         'password' => 'mentor',
