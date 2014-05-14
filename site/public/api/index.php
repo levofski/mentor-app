@@ -1,6 +1,13 @@
 <?php
 require_once('../../vendor/autoload.php');
-$app = new \Slim\Slim();
+$logger = new \Flynsarmy\SlimMonolog\Log\MonologWriter(array(
+    'handlers' => array(
+        new \Monolog\Handler\StreamHandler('../../logs/' . date('Y-m-d') . '.log'),
+    )
+));
+$app = new \Slim\Slim(array(
+    'log.writer' => $logger,
+));
 
 // load in the config
 require_once '../../config/environment.php';
@@ -18,50 +25,61 @@ $app->db = new \PDO(
 );
 
 $app->get('/v1/users/:id', function($id) use ($app) {
-    // add authentication, authz shouldn't matter here
-    $hashValidator = new \MentorApp\HashValidator();
-    if (!$hashValidator->validate($id)) {
-        $app->response->setStatus(404);
-        return;
-    }
-    $response = array();
-    $userService = new \MentorApp\UserService($app->db);
-    $userResponse = $userService->retrieve($id);
-    $skillService = new \MentorApp\SkillService($app->db);
-    $partnershipManager = new \MentorApp\PartnershipManager($app->db);
-    if ($userResponse === null) {
-        $app->response->setStatus(404);
-        return;
-    }
-    $userSerializer = new \MentorApp\UserArraySerializer();
-    $skillSerializer = new \MentorApp\SkillArraySerializer();
-    $partnershipSerializer = new \MentorApp\PartnershipArraySerializer();
-    $response = $userSerializer->toArray($userResponse);
+    try {
+        // add authentication, authz shouldn't matter here
+        $hashValidator = new \MentorApp\HashValidator();
+        if (!$hashValidator->validate($id)) {
+            $app->response->setStatus(404);
+            return;
+        }
+        $response = array();
+        $userService = new \MentorApp\UserService($app->db);
+        $userResponse = $userService->retrieve($id);
+        $skillService = new \MentorApp\SkillService($app->db);
+        $partnershipManager = new \MentorApp\PartnershipManager($app->db);
+        if ($userResponse === null) {
+            $app->response->setStatus(404);
+            return;
+        }
+        $userSerializer = new \MentorApp\UserArraySerializer();
+        $skillSerializer = new \MentorApp\SkillArraySerializer();
+        $partnershipSerializer = new \MentorApp\PartnershipArraySerializer();
+        $response = $userSerializer->toArray($userResponse);
 
-    // retrieve skill instances for the skill ids provided for teaching
-    $learningSkills = $skillService->retrieveByIds($userResponse->learningSkills);
-    $teachingSkills = $skillService->retrieveByIds($userResponse->teachingSkills);
-    foreach ($learningSkills as $learningSkill) {
-        $response['learningSkills'][] = $skillSerializer->toArray($learningSkill);
-    }
-    foreach ($teachingSkills as $teachingSkill) {
-        $response['teachingSkills'][] = $skillSerializer->toArray($teachingSkill);
-    }
+        // retrieve skill instances for the skill ids provided for teaching
+        $learningSkills = $skillService->retrieveByIds($userResponse->learningSkills);
+        $teachingSkills = $skillService->retrieveByIds($userResponse->teachingSkills);
+        foreach ($learningSkills as $learningSkill) {
+            $response['learningSkills'][] = $skillSerializer->toArray($learningSkill);
+        }
+        foreach ($teachingSkills as $teachingSkill) {
+            $response['teachingSkills'][] = $skillSerializer->toArray($teachingSkill);
+        }
 
-    $response['partnerships'] = [];
-    $mentorships = $partnershipManager->retrieveByMentor($id);
-    $apprenticeships = $partnershipManager->retrieveByApprentice($id);
-    $response['partnerships']['mentoring'] = [];
-    foreach ($mentorships as $mentorship) {
-        $response['partnerships']['mentoring'][] = $partnershipSerializer->toArray($mentorship);
-    }
-    $response['partnerships']['apprenticing'] = [];
-    foreach ($apprenticeships as $apprenticeship) {
-        $response['partnerships']['apprenticing'] = $partnershipSerializer->toArray($apprenticeship); 
-    }
+        $response['partnerships'] = [];
+        $mentorships = $partnershipManager->retrieveByMentor($id);
+        $apprenticeships = $partnershipManager->retrieveByApprentice($id);
+        $response['partnerships']['mentoring'] = [];
+        foreach ($mentorships as $mentorship) {
+            $response['partnerships']['mentoring'][] = $partnershipSerializer->toArray($mentorship);
+        }
+        $response['partnerships']['apprenticing'] = [];
+        foreach ($apprenticeships as $apprenticeship) {
+            $response['partnerships']['apprenticing'] = $partnershipSerializer->toArray($apprenticeship); 
+        }
 
-    $app->response->setStatus(200);
-    print json_encode($response); 
+        $app->response->setStatus(200);
+        print json_encode($response); 
+    } catch(\PDOException $e) {
+        $app->log->warn($e->getMessage() . ': ' . $e->getFile() . ':' . $e->getLine());
+        $app->setStatus(500);
+    } catch(\InvalidArgumentException $ie) {
+        $app->log->warn($ie->getMessage() . ': ' . $ie->getFile() . ':' . $ie->getLine());
+        $app->setStatus(500);
+    } catch(\RuntimeException $re) {
+        $app->log->warn($re->getMessage() . ': ' . $re->getFile() . ':' . $re->getLine());
+        $app->setStatus(500);
+    }
 });
 
 $app->delete('/v1/users/:id', function($id) use ($app) {

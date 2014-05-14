@@ -43,24 +43,21 @@ class PartnershipManager
      *
      * @param \MentorApp\User $mentor mentoring user instance
      * @param \MentorApp\User $apprentice apprentice user instance
+     * @throws \PDOException
      * @return boolean
      */
     public function create(User $mentor, User $apprentice)
     {
         $id = $this->generate();
-        try {
-            $query = "INSERT INTO partnership (id, id_mentor, id_apprentice) VALUES (:id, :mentor, :apprentice)";
-            $query .= " ON DUPLICATE KEY UPDATE id_mentor = :mentor";
-            $statement = $this->db->prepare($query);
-            $statement->execute(['id' => $id, 'mentor' => $mentor->id, 'apprentice' => $apprentice->id]);
-            $rowCount = $statement->rowCount();
-            if ($rowCount < 1) {
-                return false;
-            }
-        } catch(\PDOException $e) {
-            $app->log->error($e->getMessage() . ' in ' . $e->getFile() . ' on line' . $e->getLine());
+        $query = "INSERT INTO partnership (id, id_mentor, id_apprentice) VALUES (:id, :mentor, :apprentice)";
+        $query .= " ON DUPLICATE KEY UPDATE id_mentor = :mentor";
+        $statement = $this->db->prepare($query);
+        $statement->execute(['id' => $id, 'mentor' => $mentor->id, 'apprentice' => $apprentice->id]);
+        $rowCount = $statement->rowCount();
+        if ($rowCount < 1) {
             return false;
         }
+
         return true;
     }
 
@@ -68,20 +65,16 @@ class PartnershipManager
      * Removes a partnership
      *
      * @param string $id id of the relationship to delete
+     * @throws \PDOException
      * @return boolean
      */
     public function delete($id)
     {
-        try {
-            $query = "DELETE FROM partnership WHERE id = :id";
-            $statement = $this->db->prepare($query);
-            $statement->execute(['id' => $id]);
-            $rowCount = $statement->rowCount();
-            if ($rowCount < 1) {
-                return false;
-            }
-        } catch(\PDOException $e) {
-            $app->log->error($e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
+        $query = "DELETE FROM partnership WHERE id = :id";
+        $statement = $this->db->prepare($query);
+        $statement->execute(['id' => $id]);
+        $rowCount = $statement->rowCount();
+        if ($rowCount < 1) {
             return false;
         }
         return true;
@@ -99,20 +92,15 @@ class PartnershipManager
             return null;
         }
 
-        try {
-            $query = "SELECT * FROM partnership WHERE id = :id";
-            $statement = $this->db->prepare($query);
-            $statement->execute(['id' => $id]);
-            $row = $statement->fetch();
-            $partnership = new Partnership();
-            $partnership->id = $row['id'];
-            $partnership->mentor = $row['id_mentor'];
-            $partnership->apprentice = $row['id_apprentice'];
-            return $partnership;
-        } catch(\PDOException $e) {
-            $app->log->error($e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
-            return null;
-        }
+        $query = "SELECT * FROM partnership WHERE id = :id";
+        $statement = $this->db->prepare($query);
+        $statement->execute(['id' => $id]);
+        $row = $statement->fetch();
+        $partnership = new Partnership();
+        $partnership->id = $row['id'];
+        $partnership->mentor = $row['id_mentor'];
+        $partnership->apprentice = $row['id_apprentice'];
+        return $partnership;
     }
 
     /**
@@ -129,19 +117,15 @@ class PartnershipManager
         }
 
         $partnerships = [];
-        try {
-            $query = "SELECT * FROM `partnership` WHERE id_mentor = :mentor_id";
-            $statement = $this->db->prepare($query);
-            $statement->execute(['mentor_id' => $mentorId]);
-            while ($row = $statement->fetch()) {
-                $partnership = new Partnership();
-                $partnership->id = $row['id'];
-                $partnership->mentor = $row['id_mentor'];
-                $partnership->apprentice = $row['id_apprentice'];
-                $partnerships[] = $partnership;
-            }
-        } catch (\PDOException $e) {
-            $app->log->error($e->getMessage . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
+        $query = "SELECT * FROM `partnership` WHERE id_mentor = :mentor_id";
+        $statement = $this->db->prepare($query);
+        $statement->execute(['mentor_id' => $mentorId]);
+        while ($row = $statement->fetch()) {
+            $partnership = new Partnership();
+            $partnership->id = $row['id'];
+            $partnership->mentor = $row['id_mentor'];
+            $partnership->apprentice = $row['id_apprentice'];
+            $partnerships[] = $partnership;
         }
         return $partnerships;
     }
@@ -150,6 +134,7 @@ class PartnershipManager
      * Retrieve a group partnerships searching by apprentice
      *
      * @param string $apprenticeId
+     * @throws \PDOException
      * @return array
      */
     public function retrieveByApprentice($apprenticeId)
@@ -159,20 +144,15 @@ class PartnershipManager
         }
 
         $partnerships = [];
-        try {
-            $query = "SELECT * FROM `partnership` WHERE id_apprentice = :apprentice_id";
-            $statement = $this->db->prepare($query);
-            $statement->execute(['apprentice_id' => $apprenticeId]);
-            while ($row = $statement->fetch())
-            {
-                $partnership = new Partnership();
-                $partnership->id = $row['id'];
-                $partnership->mentor = $row['id_mentor'];
-                $partnership->apprentice = $row['id_apprentice'];
-                $partnerships[] = $partnership;
-            }
-        } catch(\PDOException $e) {
-            $app->log->error($e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
+        $query = "SELECT * FROM `partnership` WHERE id_apprentice = :apprentice_id";
+        $statement = $this->db->prepare($query);
+        $statement->execute(['apprentice_id' => $apprenticeId]);
+        while ($row = $statement->fetch()) {
+            $partnership = new Partnership();
+            $partnership->id = $row['id'];
+            $partnership->mentor = $row['id_mentor'];
+            $partnership->apprentice = $row['id_apprentice'];
+            $partnerships[] = $partnership;
         }
         return $partnerships;
     } 
@@ -214,16 +194,11 @@ class PartnershipManager
         if ($id === '' || !preg_match('/^[A-Fa-f0-9]{10}$/', $id)) {
             throw new \RuntimeException('Yeah...so, we had a problem we couldn\'t resolve, sorry!');
         }
-        try {
-            $query = "SELECT id FROM `partnership` WHERE id = :id";
-            $statement = $this->db->prepare($query);
-            $statement->execute(['id' => $id]);
-            if ($statement->rowCount() > 0) {
-                return true;
-            }
-        } catch (\PDOException $e) {
-            // log it
-            throw new \RuntimeException('Yeah...so, we had a problem we couldn\'t resolve, sorry!');
+        $query = "SELECT id FROM `partnership` WHERE id = :id";
+        $statement = $this->db->prepare($query);
+        $statement->execute(['id' => $id]);
+        if ($statement->rowCount() > 0) {
+            return true;
         }
         return false;
     }
