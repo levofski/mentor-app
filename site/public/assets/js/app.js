@@ -2,7 +2,7 @@ window.App = {};
 window.Mentor = {}; // this is our global for storing important things
 
 App.init = function() {
-    window.Mentor.apiUrl = 'http://mentorapp.dev:8080/api/v1';
+    window.Mentor.apiUrl = 'http://mentorapp.dev/api/v1';
     window.Mentor.user = { status: 0 };
 
     $.ajaxSetup({
