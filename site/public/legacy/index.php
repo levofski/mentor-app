@@ -10,7 +10,7 @@
 			media="screen"
 			rel="stylesheet"
 			type="text/css">
-		<link href="./assets/styles/style-main.css"
+		<link href="../assets/styles/style-main.css"
 			media="all"
 			rel="stylesheet"
 			type="text/css">
@@ -28,7 +28,7 @@
 		<div class="primary_row row">
 			<div class="column primary_column">
 				<div class="cell primary_cell">
-					<form action="./" class="form"
+					<form action="../" class="form"
 						id="register_form"
 						method="post">
 						<fieldset class="fieldset">
@@ -58,7 +58,7 @@
 				</div>
 			</div>
 		</div>
-		<script src="./assets/js/backbone-min.js"
+		<script src="../assets/js/backbone-min.js"
 			type="text/javascript"></script>
 	</body>
 </html>
