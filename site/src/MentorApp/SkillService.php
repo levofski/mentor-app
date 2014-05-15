@@ -201,10 +201,5 @@ class SkillService
             return true;
         }
         return false;
-        } catch (\PDOException $e) {
-            throw $e;
-            throw new \RuntimeException('Rut Roh! Something terrible happened and we couldn\'t fix it...');
-        }
-        return false;
     }
 }
