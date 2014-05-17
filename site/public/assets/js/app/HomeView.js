@@ -1,4 +1,4 @@
-Backbone.View.extend({
+App.HomeView = Backbone.View.extend({
     tagname: 'div',
 
     template: _.template($("#home-view").html()),

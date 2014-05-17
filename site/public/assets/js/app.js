@@ -23,10 +23,6 @@ App.init = function() {
         },
         home: function() {},
         login: function() {
-            /**
-            var user = new App.User({'id': '003ed1ea5a'});
-            var profile = new App.UserProfileView({model: user});
-            */
             new App.LoginView();
         },
         newUser: function(type) {

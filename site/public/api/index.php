@@ -25,7 +25,6 @@ $app->db = new \PDO(
 $app->get('/v1/oauth', function() use ($app, $clientConfig) {
     $auth = new \MentorApp\Auth($app);
 
-    // @todo :: setup response handlers here instead of in the business logic
     if ($auth->callbackOAuth($clientConfig[$_SESSION['oauth_session']['type']])) {
         $app->response->redirect('/doLogin/' . $_SESSION['oauth_session']['type'], 302);
     } else {
