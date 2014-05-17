@@ -1,8 +1,11 @@
 App.Skill = Backbone.Model.extend({
-    urlRoot: 'skill/',
+    urlRoot: '/api/v1/skill/',
     defaults: {
         id: '',
         name: '',
-        approved: false,
+        approved: false
+    },
+    initialize: function() {
+        this.fetch();
     }
 });
