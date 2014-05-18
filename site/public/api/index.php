@@ -83,117 +83,161 @@ $app->get('/v1/users/:id', function($id) use ($app) {
 });
 
 $app->delete('/v1/users/:id', function($id) use ($app) {
-    $hashValidator = new \MentorApp\HashValidator();
-    if (!$hashValidator->validate($id)) {
-        $app->response->setStatus(404);
-        return;
-    }
-    $userService = new \MentorApp\UserService($app->db);
+    try {
+        $hashValidator = new \MentorApp\HashValidator();
+        if (!$hashValidator->validate($id)) {
+            $app->response->setStatus(404);
+            return;
+        }
+        $userService = new \MentorApp\UserService($app->db);
 
-    if (!$userService->delete($id)) {
-        $app->response->setStatus(404);
-        return;
+        if (!$userService->delete($id)) {
+            $app->response->setStatus(404);
+            return;
+        }
+        $app->response->setStatus(200);
+    } catch(\PDOException $e) {
+        $app->log->warn($e->getMessage() . ': ' . $e->getFile() . ':' . $e->getLine());
+        $app->setStatus(500);
+    } catch(\InvalidArgumentException $ie) {
+        $app->log->warn($ie->getMessage() . ': ' . $ie->getFile() . ':' . $ie->getLine());
+        $app->setStatus(500);
+    } catch(\RuntimeException $re) {
+        $app->log->warn($re->getMessage() . ': ' . $re->getFile() . ':' . $re->getLine());
+        $app->setStatus(500);
     }
-    $app->response->setStatus(200);
 });
 
 $app->post('/v1/users', function() use ($app) {
-    $user = new \MentorApp\User();
-    $userService = new \MentorApp\UserService($app->db);
-    $skillService = new \MentorApp\SkillService($app->db);
-    $data = $app->request->getBody();
-    $dataArray = json_decode($data, true);
-    $user->firstName = filter_var($dataArray['first_name'], FILTER_SANITIZE_STRING);
-    $user->lastName = filter_var($dataArray['last_name'], FILTER_SANITIZE_STRING);
-    $user->email = filter_var($dataArray['email'], FILTER_SANITIZE_EMAIL);
-    $user->githubHandle = filter_var($dataArray['github_handle'], FILTER_SANITIZE_STRING);
-    $user->twitterHandle = filter_var($dataArray['twitter_handle'], FILTER_SANITIZE_STRING);
-    $user->ircNick = filter_var($dataArray['irc_nick'], FILTER_SANITIZE_STRING);
-    $user->mentorAvailable = ($dataArray['mentor_available'] == 1) ? 1 : 0;
-    $user->apprenticeAvailable = $dataArray['apprentice_available'] ? 1 : 0;
-    $user->teachingSkills = array();
-    $user->learningSkills = array();
-    $user->timezone = filter_var($dataArray['timezone'], FILTER_SANITIZE_STRING);
-    foreach ($dataArray['teaching_skills'] as $teaching) {
-        $id = filter_var($teaching, '/^[0-9a-f]{10}$/');
-        $user->teachingSkills[] = $skillService->retrieve($id);
+    try {
+        $user = new \MentorApp\User();
+        $userService = new \MentorApp\UserService($app->db);
+        $skillService = new \MentorApp\SkillService($app->db);
+        $data = $app->request->getBody();
+        $dataArray = json_decode($data, true);
+        $user->firstName = filter_var($dataArray['first_name'], FILTER_SANITIZE_STRING);
+        $user->lastName = filter_var($dataArray['last_name'], FILTER_SANITIZE_STRING);
+        $user->email = filter_var($dataArray['email'], FILTER_SANITIZE_EMAIL);
+        $user->githubHandle = filter_var($dataArray['github_handle'], FILTER_SANITIZE_STRING);
+        $user->twitterHandle = filter_var($dataArray['twitter_handle'], FILTER_SANITIZE_STRING);
+        $user->ircNick = filter_var($dataArray['irc_nick'], FILTER_SANITIZE_STRING);
+        $user->mentorAvailable = ($dataArray['mentor_available'] == 1) ? 1 : 0;
+        $user->apprenticeAvailable = $dataArray['apprentice_available'] ? 1 : 0;
+        $user->teachingSkills = array();
+        $user->learningSkills = array();
+        $user->timezone = filter_var($dataArray['timezone'], FILTER_SANITIZE_STRING);
+        foreach ($dataArray['teaching_skills'] as $teaching) {
+            $id = filter_var($teaching, '/^[0-9a-f]{10}$/');
+            $user->teachingSkills[] = $skillService->retrieve($id);
+        }
+    
+        foreach ($dataArray['learning_skills'] as $learning)
+        {
+            $id = filter_var($learning, '/^[0-9a-f]{10}$/');
+            $user->learningSkills[] = $skillService->retrieve($id);
+        } 
+                
+        $savedUser = $userService->create($user);
+        if (!$savedUser) {
+            $app->response->setStatus(400);
+        }
+        $app->response->setStatus(201);
+        $app->response->header('Location', '/api/v1/users/'.urlencode($user->id));
+        $app->response->header('Content-Type', 'application/json');
+        print json_encode(['id' => $user->id]);
+    } catch(\PDOException $e) {
+        $app->log->warn($e->getMessage() . ': ' . $e->getFile() . ':' . $e->getLine());
+        $app->setStatus(500);
+    } catch(\InvalidArgumentException $ie) {
+        $app->log->warn($ie->getMessage() . ': ' . $ie->getFile() . ':' . $ie->getLine());
+        $app->setStatus(500);
+    } catch(\RuntimeException $re) {
+        $app->log->warn($re->getMessage() . ': ' . $re->getFile() . ':' . $re->getLine());
+        $app->setStatus(500);
     }
-
-    foreach ($dataArray['learning_skills'] as $learning)
-    {
-        $id = filter_var($learning, '/^[0-9a-f]{10}$/');
-        $user->learningSkills[] = $skillService->retrieve($id);
-    } 
-
-    $savedUser = $userService->create($user);
-    if (!$savedUser) {
-        $app->response->setStatus(400);
-    }
-    $app->response->setStatus(201);
-    $app->response->header('Location', '/api/v1/users/'.urlencode($user->id));
-    $app->response->header('Content-Type', 'application/json');
-    print json_encode(['id' => $user->id]);
 });        
 
 $app->put('/v1/users/:id', function($id) use ($app) {
-    $user = new \MentorApp\User();
-    $userService = new \MentorApp\UserService($app->db);
-    $skillService = new \MentorApp\SkillService($app->db);
-    $data = $app->request->getBody();
-    $dataArray = json_decode($data, true);
-    $user->id = filter_var($id, FILTER_SANITIZE_STRING);
-    $user->firstName = filter_var($dataArray['first_name'], FILTER_SANITIZE_STRING);
-    $user->lastName = filter_var($dataArray['last_name'], FILTER_SANITIZE_STRING);
-    $user->email = filter_var($dataArray['email'], FILTER_SANITIZE_EMAIL);
-    $user->githubHandle = filter_var($dataArray['github_handle'], FILTER_SANITIZE_STRING);
-    $user->twitterHandle = filter_var($dataArray['twitter_handle'], FILTER_SANITIZE_STRING);
-    $user->ircNick = filter_var($dataArray['irc_nick'], FILTER_SANITIZE_STRING);
-    $user->mentorAvailable = ($dataArray['mentor_available'] == 1) ? 1 : 0;
-    $user->apprenticeAvailable = $dataArray['apprentice_available'] ? 1 : 0;
-    $user->teachingSkills = array();
-    $user->learningSkills = array();
-    $user->timezone = filter_var($dataArray['timezone'], FILTER_SANITIZE_STRING);
-    foreach ($dataArray['teaching_skills'] as $teaching) {
-        $id = filter_var($teaching, '/^[0-9a-f]{10}$/');
-        $user->teachingSkills[] = $skillService->retrieve($id);
-    }
+    try {
+        $user = new \MentorApp\User();
+        $userService = new \MentorApp\UserService($app->db);
+        $skillService = new \MentorApp\SkillService($app->db);
+        $data = $app->request->getBody();
+        $dataArray = json_decode($data, true);
+        $user->id = filter_var($id, FILTER_SANITIZE_STRING);
+        $user->firstName = filter_var($dataArray['first_name'], FILTER_SANITIZE_STRING);
+        $user->lastName = filter_var($dataArray['last_name'], FILTER_SANITIZE_STRING);
+        $user->email = filter_var($dataArray['email'], FILTER_SANITIZE_EMAIL);
+        $user->githubHandle = filter_var($dataArray['github_handle'], FILTER_SANITIZE_STRING);
+        $user->twitterHandle = filter_var($dataArray['twitter_handle'], FILTER_SANITIZE_STRING);
+        $user->ircNick = filter_var($dataArray['irc_nick'], FILTER_SANITIZE_STRING);
+        $user->mentorAvailable = ($dataArray['mentor_available'] == 1) ? 1 : 0;
+        $user->apprenticeAvailable = $dataArray['apprentice_available'] ? 1 : 0;
+        $user->teachingSkills = array();
+        $user->learningSkills = array();
+        $user->timezone = filter_var($dataArray['timezone'], FILTER_SANITIZE_STRING);
+        foreach ($dataArray['teaching_skills'] as $teaching) {
+            $id = filter_var($teaching, '/^[0-9a-f]{10}$/');
+            $user->teachingSkills[] = $skillService->retrieve($id);
+        }
 
-    foreach ($dataArray['learning_skills'] as $learning)
-    {
-        $id = filter_var($learning, '/^[0-9a-f]{10}$/');
-        $user->learningSkills[] = $skillService->retrieve($id);
-    } 
-
-    $savedUser = $userService->update($user);
-    if (!$savedUser) {
-        $app->response->setStatus(400);
+        foreach ($dataArray['learning_skills'] as $learning)
+        {
+            $id = filter_var($learning, '/^[0-9a-f]{10}$/');
+            $user->learningSkills[] = $skillService->retrieve($id);
+        } 
+    
+        $savedUser = $userService->update($user);
+        if (!$savedUser) {
+            $app->response->setStatus(400);
+        }
+        $app->response->setStatus(200);
+    } catch(\PDOException $e) {
+        $app->log->warn($e->getMessage() . ': ' . $e->getFile() . ':' . $e->getLine());
+        $app->setStatus(500);
+    } catch(\InvalidArgumentException $ie) {
+        $app->log->warn($ie->getMessage() . ': ' . $ie->getFile() . ':' . $ie->getLine());
+        $app->setStatus(500);
+    } catch(\RuntimeException $re) {
+        $app->log->warn($re->getMessage() . ': ' . $re->getFile() . ':' . $re->getLine());
+        $app->setStatus(500);
     }
-    $app->response->setStatus(200);
 });
 
 $app->get('/v1/users', function() use ($app) {
-    $skillService = new \MentorApp\SkillService($app->db);
-    $skillSerializer = new \MentorApp\SkillArraySerializer();
-    $userService = new \MentorApp\UserService($app->db);
-    $userSerializer = new \MentorApp\UserArraySerializer();
-    $users = $userService->retrieveAll();
-    $response = array();
-    foreach ($users as $user) {
-        $learningSkills = $skillService->retrieveByIds($user->learningSkills);
-        $teachingSkills = $skillService->retrieveByIds($user->teachingSkills);
-        $serializedUser = $userSerializer->toArray($user);
-        $serializedUser['learningSkills'] = [];
-        $serializedUser['teachingSkills'] = [];
-        foreach ($learningSkills as $learn) {
-            $serializedUser['learningSkills'][] = $skillSerializer->toArray($learn);
+    try {
+        $skillService = new \MentorApp\SkillService($app->db);
+        $skillSerializer = new \MentorApp\SkillArraySerializer();
+        $userService = new \MentorApp\UserService($app->db);
+        $userSerializer = new \MentorApp\UserArraySerializer();
+        $users = $userService->retrieveAll();
+        $response = array();
+        foreach ($users as $user) {
+            $learningSkills = $skillService->retrieveByIds($user->learningSkills);
+            $teachingSkills = $skillService->retrieveByIds($user->teachingSkills);
+            $serializedUser = $userSerializer->toArray($user);
+            $serializedUser['learningSkills'] = [];
+            $serializedUser['teachingSkills'] = [];
+            foreach ($learningSkills as $learn) {
+                $serializedUser['learningSkills'][] = $skillSerializer->toArray($learn);
+            }
+            foreach ($teachingSkills as $teach) {
+                $serializedUser['teachingSkills'][] = $skillSerializer->toArray($teach);
+            }
+            $response[] = $serializedUser;
         }
-        foreach ($teachingSkills as $teach) {
-            $serializedUser['teachingSkills'][] = $skillSerializer->toArray($teach);
-        }
-        $response[] = $serializedUser;
+        $app->response->setStatus(200);
+        print json_encode($response);
+    } catch(\PDOException $e) {
+        $app->log->warn($e->getMessage() . ': ' . $e->getFile() . ':' . $e->getLine());
+        $app->setStatus(500);
+    } catch(\InvalidArgumentException $ie) {
+        $app->log->warn($ie->getMessage() . ': ' . $ie->getFile() . ':' . $ie->getLine());
+        $app->setStatus(500);
+    } catch(\RuntimeException $re) {
+        $app->log->warn($re->getMessage() . ': ' . $re->getFile() . ':' . $re->getLine());
+        $app->setStatus(500);
     }
-    $app->response->setStatus(200);
-    print json_encode($response);
 });
 
 $app->get('/v1/skills/:id', function($id) use ($app) {

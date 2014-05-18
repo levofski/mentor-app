@@ -61,6 +61,7 @@ class UserService
      *
      * @param string id ID to search for and retrieve
      * @return \MentorApp\User user instance populated with the rest of the
+     * @throws \PDOException
      * data
      */
     public function retrieve($id)
@@ -69,23 +70,18 @@ class UserService
             return null;
         }
 
-        try {
-            $query = 'SELECT ' . implode(', ', $this->mapping) . ' FROM user WHERE id = :id';
-            $statement = $this->db->prepare($query);
-            $statement->execute(array('id' => $id));
-            $userData = $statement->fetch();
-            if ($statement->rowCount() < 1) {
-                return null;
-            }
-            $user = $this->mapDatabaseResultToUser(new User(), $userData);
-            $user->teachingSkills = $this->retrieveSkills($id, self::SKILL_TYPE_TEACHING);
-            $user->learningSkills = $this->retrieveSkills($id, self::SKILL_TYPE_LEARNING);
-
-            return $user;
-        } catch (\PDOException $e) {
-            // log the error
+        $query = 'SELECT ' . implode(', ', $this->mapping) . ' FROM user WHERE id = :id';
+        $statement = $this->db->prepare($query);
+        $statement->execute(array('id' => $id));
+        $userData = $statement->fetch();
+        if ($statement->rowCount() < 1) {
             return null;
         }
+        $user = $this->mapDatabaseResultToUser(new User(), $userData);
+        $user->teachingSkills = $this->retrieveSkills($id, self::SKILL_TYPE_TEACHING);
+        $user->learningSkills = $this->retrieveSkills($id, self::SKILL_TYPE_LEARNING);
+
+        return $user;
     }
 
     /**
@@ -94,6 +90,7 @@ class UserService
      *
      * @param \MentorApp\User user user instance
      * @return \MentorApp\User|null
+     * @throws \PDOException
      */
     public function create(\MentorApp\User $user)
     {
@@ -107,15 +104,10 @@ class UserService
         }
         $query = 'INSERT INTO user (' . $fields . ') VALUES (' . substr($valueKeys, 0, -2) . ')';
 
-        try {
-            $statement = $this->db->prepare($query);
-            $statement->execute($statementValues);
-            $this->saveSkills($user->id, $user->teachingSkills, self::SKILL_TYPE_TEACHING);
-            $this->saveSkills($user->id, $user->learningSkills, self::SKILL_TYPE_LEARNING);
-        } catch (\PDOException $e) {
-            // log errors
-            return null;
-        }
+        $statement = $this->db->prepare($query);
+        $statement->execute($statementValues);
+        $this->saveSkills($user->id, $user->teachingSkills, self::SKILL_TYPE_TEACHING);
+        $this->saveSkills($user->id, $user->learningSkills, self::SKILL_TYPE_LEARNING);
         return $user;
     }
 
@@ -127,6 +119,7 @@ class UserService
      *
      * @param \MentorApp\User user a user object with the properties set
      * @return boolean if the update is successful true returned, otherwise false
+     * @throws \PDOException
      */
     public function update(\MentorApp\User $user)
     {
@@ -139,16 +132,12 @@ class UserService
         }
         $updateQuery = 'UPDATE user SET ' . substr($updateConditions, 0, -2);
         $updateQuery .= ' WHERE id=:id';
-        try {
-            $statement = $this->db->prepare($updateQuery);
-            $statement->execute($updateValues);
-            $rowCount = $statement->rowCount();
-            $this->deleteSkills($user->id);
-            $this->saveSkills($user->id, $user->teachingSkills, self::SKILL_TYPE_TEACHING);
-            $this->saveSkills($user->id, $user->learningSkills, self::SKILL_TYPE_LEARNING);
-        } catch (\PDOException $e) {
-            // log
-        }
+        $statement = $this->db->prepare($updateQuery);
+        $statement->execute($updateValues);
+        $rowCount = $statement->rowCount();
+        $this->deleteSkills($user->id);
+        $this->saveSkills($user->id, $user->teachingSkills, self::SKILL_TYPE_TEACHING);
+        $this->saveSkills($user->id, $user->learningSkills, self::SKILL_TYPE_LEARNING);
         if ($rowCount < 1) {
             return false;
         }
@@ -160,21 +149,18 @@ class UserService
      *
      * @param string id id of the user to be deleted
      * @return boolean
+     * @throws \PDOException
      */
     public function delete($id)
     {
         $deleteQuery = "DELETE FROM user WHERE id = :id";
-        try {
-            $statement = $this->db->prepare($deleteQuery);
-            $statement->execute(array('id' => $id));
+        $statement = $this->db->prepare($deleteQuery);
+        $statement->execute(array('id' => $id));
 
-            if ($statement->rowCount() < 1) {
-                return false;
-            }
-            $this->deleteSkills($id);
-        } catch (\PDOException $e) {
-            // log it
+        if ($statement->rowCount() < 1) {
+            return false;
         }
+        $this->deleteSkills($id);
         return true;
     }
 
@@ -184,6 +170,7 @@ class UserService
      * @param string user_id id of the user
      * @param array skills an array of skill instances to attach to the user
      * @param string type the type of skills to be saved 
+     * @throws \PDOException
      */
     private function saveSkills($user_id, array $skills, $type)
     {
@@ -193,12 +180,7 @@ class UserService
         $query = "INSERT INTO {$type}_skills (id_user, id_tag) VALUES (:user, :tag)";
         $statement = $this->db->prepare($query);
         foreach ($skills as $skill) {
-            try {
-                $statement->execute(array('user' => $user_id, 'tag' => $skill->id));
-            } catch (\PDOException $e) {
-                //TODO log it
-                // maybe rethrow it and catch it in the create/update methods?
-            }
+            $statement->execute(array('user' => $user_id, 'tag' => $skill->id));
         }
     }
 
@@ -207,20 +189,16 @@ class UserService
      * from the data stores
      * @param string id id of the user that the skills will be removed from
      * @return boolean returns true if skills were deleted successfully, false otherwise
+     * @throws \PDOException
      */
     private function deleteSkills($id)
     {
         $teachingQuery = "DELETE FROM teaching_skills WHERE id_user = :id";
         $learningQuery = "DELETE FROM learning_skills WHERE id_user = :id";
-        try {
-            $teachingStatement = $this->db->prepare($teachingQuery);
-            $learningStatement = $this->db->prepare($learningQuery);
-            $teachingStatement->execute(array('id' => $id));
-            $learningStatement->execute(array('id' => $id));
-        } catch (\PDOException $e) {
-            // log the error
-            return false;
-        }
+        $teachingStatement = $this->db->prepare($teachingQuery);
+        $learningStatement = $this->db->prepare($learningQuery);
+        $teachingStatement->execute(array('id' => $id));
+        $learningStatement->execute(array('id' => $id));
         return true;
     }
 
@@ -245,6 +223,7 @@ class UserService
      * @param string user_id id of the user to look up
      * @param string type the type of skills to be retrieved
      * @return array an array of all the skill ids saved for the user
+     * @throws \PDOException
      */
     private function retrieveSkills($user_id, $type)
     {
@@ -252,21 +231,16 @@ class UserService
             return false;
         }
 
-        try {
-            $statement = $this->db->prepare(
-                "SELECT id_tag FROM {$type}_skills WHERE id_user = :id"
-            );
-            $statement->execute(array('id' => $user_id));
+        $statement = $this->db->prepare(
+            "SELECT id_tag FROM {$type}_skills WHERE id_user = :id"
+        );
+        $statement->execute(array('id' => $user_id));
 
-            $skills = array();
-            while ($row = $statement->fetch()) {
-                $skills[] = $row['id_tag'];
-            }
-            return $skills;
-        } catch (\PDOException $e) {
-            //TODO log it
-            return array();
+        $skills = array();
+        while ($row = $statement->fetch()) {
+            $skills[] = $row['id_tag'];
         }
+            return $skills;
     }
 
     /**
@@ -321,6 +295,7 @@ class UserService
      * @param int $results_per_page the number of results per page
      * @param int $page the page number to be retrieved
      * @return array an array of all the users on that page.
+     * @throws \PDOException
      */
     public function retrieveAll($page=1, $results_per_page=20)
     {
@@ -330,14 +305,10 @@ class UserService
         $fields = implode(', ', $this->mapping);
         $offset = ($page - 1) * $results_per_page;
         $userCollection = array(); 
-        try {
-            $query = "SELECT $fields FROM `user` ORDER BY `id` LIMIT $offset, $results_per_page";
-            $statement = $this->db->prepare($query);
-            $statement->execute();
-            $users = $statement->fetchAll();
-        } catch(\PDOException $e) {
-            // log it
-        }
+        $query = "SELECT $fields FROM `user` ORDER BY `id` LIMIT $offset, $results_per_page";
+        $statement = $this->db->prepare($query);
+        $statement->execute();
+        $users = $statement->fetchAll();
         foreach ($users as $user_result) {
             $userObject = new User();
             $user = $this->mapDatabaseResultToUser($userObject, $user_result);

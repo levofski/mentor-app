@@ -118,6 +118,7 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Test to ensure null is returned when PDO throws an exception
+     * @expectedException \PDOException
      */
     public function testGetUserWhenPDOThrowsException()
     {
@@ -127,7 +128,6 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
         $id = 'bbccdd1134';
         $userService = new UserService($this->db);
         $retrievedUser = $userService->retrieve($id);
-        $this->assertNull($retrievedUser); 
     }
 
     /**
@@ -209,6 +209,7 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Test to ensure that PDOException causes the UserService::create to return null 
+     * @expectedException \PDOException
      */
     public function testPDOExceptionCausesServiceToReturnNull()
     {
@@ -242,7 +243,6 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
         $user->timezone = 'America/Chicago';
         $userService = new UserService($this->db);
         $result = $userService->create($user);
-        $this->assertNull($result);
     }
 
     /**
