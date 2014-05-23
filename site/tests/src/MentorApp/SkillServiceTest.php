@@ -62,17 +62,6 @@ class SkillServiceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test to ensure an InvalidArgumentException is thrown when the search
-     * term is an empty string
-     */
-    public function testRetrieveWithEmptyNameParamThrowsException()
-    {
-        $this->setExpectedException('\\InvalidArgumentException');
-        $service = new SkillService($this->db);
-        $service->retrieve('');
-    }
-
-    /**
      * Test to ensure that null is return if no skill can be found by with
      * the search term
      */
@@ -133,17 +122,6 @@ class SkillServiceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test to ensure that an empty term cannot be searched for, expects
-     * an InvalidArgumentException
-     */
-    public function testSearchByTermThrowsExceptionForEmptySearchTerm()
-    {
-        $this->setExpectedException('\\InvalidArgumentException');
-        $service = new SkillService($this->db);
-        $service->searchByTerm('');
-    }
-
-    /**
      * Test to ensure that an empty array is return when no matching
      * skills are found
      */
@@ -163,20 +141,6 @@ class SkillServiceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test to ensure that skills passed in without a name throws an 
-     * InvalidArgumentException
-     */ 
-    public function testSaveThrowsExceptionForNamelessSkill()
-    {
-        $skill = $this->getMock('\\MentorApp\\Skill');
-        $skill->name = '';
-
-        $this->setExpectedException('\\InvalidArgumentException');
-        $service = new SkillService($this->db);
-        $service->save($skill);
-    }
-
-    /**
      * Test to ensure the save method functions properly when the Skill has an ID set
      */
     public function testEnsureSaveMethodUpdatesTable()
@@ -188,18 +152,18 @@ class SkillServiceTest extends \PHPUnit_Framework_TestCase
         $skill->authorized = true;
 
         $query = 'INSERT INTO `skill` (
-                `id`,
-                `name`,
-                `authorized`,
-                `added`
-            ) VALUES (
-                :id,
-                :name,
-                :authorized,
-                :added
-            ) ON DUPLICATE KEY UPDATE
-                `authorized` = :authorized
-            ';
+            `id`,
+            `name`,
+            `authorized`,
+            `added`
+        ) VALUES (
+            :id,
+            :name,
+            :authorized,
+            :added
+        ) ON DUPLICATE KEY UPDATE
+            `authorized` = :authorized
+        ';
         $this->db->expects($this->once())
             ->method('prepare')
             ->with($query)
@@ -226,18 +190,18 @@ class SkillServiceTest extends \PHPUnit_Framework_TestCase
         $skill->added = '2013-11-18 21:18:30';
 
         $query = 'INSERT INTO `skill` (
-                `id`,
-                `name`,
-                `authorized`,
-                `added`
-            ) VALUES (
-                :id,
-                :name,
-                :authorized,
-                :added
-            ) ON DUPLICATE KEY UPDATE
-                `authorized` = :authorized
-            ';
+            `id`,
+            `name`,
+            `authorized`,
+            `added`
+        ) VALUES (
+            :id,
+            :name,
+            :authorized,
+            :added
+        ) ON DUPLICATE KEY UPDATE
+            `authorized` = :authorized
+        ';
         $this->db->expects($this->at(0))
             ->method('prepare')
             ->with('SELECT id FROM `skill` WHERE id = :id')
@@ -266,6 +230,7 @@ class SkillServiceTest extends \PHPUnit_Framework_TestCase
     /**
      * Test to ensure that when a \PDO Exception is thrown in save when
      * updating a skill entry returns false
+     * @expectedException \PDOException
      */
     public function testSaveReturnsFalseOnPDOException()
     {
@@ -276,18 +241,18 @@ class SkillServiceTest extends \PHPUnit_Framework_TestCase
         $skill->added = '2013-11-19 13:56:12';
 
         $query = 'INSERT INTO `skill` (
-                `id`,
-                `name`,
-                `authorized`,
-                `added`
-            ) VALUES (
-                :id,
-                :name,
-                :authorized,
-                :added
-            ) ON DUPLICATE KEY UPDATE
-                `authorized` = :authorized
-            ';
+            `id`,
+            `name`,
+            `authorized`,
+            `added`
+        ) VALUES (
+            :id,
+            :name,
+            :authorized,
+            :added
+        ) ON DUPLICATE KEY UPDATE
+            `authorized` = :authorized
+        ';
         $this->db->expects($this->once())
             ->method('prepare')
             ->with($query)
@@ -307,7 +272,6 @@ class SkillServiceTest extends \PHPUnit_Framework_TestCase
      * throws a \RuntimeException
      *
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Rut Roh! Something terrible happened and we couldn't fix it...
      */
     public function testEnsureRuntimeExceptionIsThrownOnPDOExceptionInExists()
     {
