@@ -1,12 +1,12 @@
 mentor-app
 ==========
 
-Mentor matching application
+Mentor matching application to assist with the task of matching mentors with mentees based on the skills they list as interests.  This is a backbone.js app using a MySQL database.
 
 Vagrant
 =======
 
-####Setup vagrant
+####Start vagrant
 The system is bundled with a Vagrant set up, so you can get up and running quickly and in a common environment.
 
 To get the Vagrant system running, go to vagrant-mentor-app and run the following:
@@ -33,10 +33,10 @@ If you need to access your Vagrant machine at any time you can go in to the rele
 
 $ vagrant ssh
 
-Your files are located at `/var/www` and run `composer install`
+Your files are located at `/var/www` and run `composer install` to set up the mentor-app project.
 
 
-When you are finished for the day, go to the relevant directory and run:
+When you are finished for the day, go to the `vagrant-mentor-app` directory and run:
 
 $ vagrant halt
 
