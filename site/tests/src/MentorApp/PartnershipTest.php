@@ -109,6 +109,7 @@ class PartnershipTest extends \PHPUnit_Framework_TestCase
     /**
      * Test to ensure that when an exception is thrown it is caught and
      * returns false
+     * @expectedException \PDOException
      */
     public function testExceptionReturnsFalse()
     {
@@ -132,7 +133,6 @@ class PartnershipTest extends \PHPUnit_Framework_TestCase
             ->will($this->throwException(new \PDOException));
         $partnershipManager = new PartnershipManager($this->db);
         $result = $partnershipManager->create($mentor, $apprentice);
-        $this->assertFalse($result);
     }
 
     /**
@@ -184,6 +184,7 @@ class PartnershipTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Test to ensure false is returned when PDO throws an exception
+     * @expectedException \PDOException
      */
     public function testDeleteReturnsFalseOnException()
     {
@@ -193,7 +194,6 @@ class PartnershipTest extends \PHPUnit_Framework_TestCase
             ->will($this->throwException(new \PDOException));
         $partnershipManager = new PartnershipManager($this->db);
         $result = $partnershipManager->delete($id);
-        $this->assertFalse($result);
     }
 
     /**
@@ -233,6 +233,7 @@ class PartnershipTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Test to ensure that a PDO Exception returns null
+     * @expectedException \PDOException
      */
     public function testPDOExceptionReturnsNull()
     {
@@ -242,7 +243,6 @@ class PartnershipTest extends \PHPUnit_Framework_TestCase
         $id = 'ab3212aebc';
         $manager = new PartnershipManager($this->db);
         $partnership = $manager->retrieveById($id);
-        $this->assertNull($partnership);
     }
 
     /**
@@ -295,9 +295,10 @@ class PartnershipTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test to ensure PDO Exception in retrieveByMentor returns empty array
+     * Test to ensure PDO Exception is thrown up to the top
+     * @expectedException \PDOException
      */
-    public function testPDOExceptionMentorReturnsEmptyArray()
+    public function testPDOExceptionMentorIsThrown()
     {
         $this->db->expects($this->once())
             ->method('prepare')
@@ -358,9 +359,10 @@ class PartnershipTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test to ensure a PDO Exception returns an empty array
+     * Test to ensure a PDO Exception is thrown to the top
+     * @expectedException \PDOException
      */
-    public function testPDOExceptionApprenticeReturnsEmptyArray()
+    public function testPDOExceptionApprenticeIsThrown()
     {
         $this->db->expects($this->once())
             ->method('prepare')
