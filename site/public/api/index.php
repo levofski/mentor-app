@@ -10,8 +10,10 @@ $app = new \Slim\Slim(array(
 ));
 
 // load in the config
-require_once '../../config/environment.php';
-require_once '../../config/database.php';
+require_once('../../config/config.php');
+
+// spin up sessions
+$app->add(new \Slim\Middleware\SessionCookie($session));
 
 // setup constants for use in the endpoints
 define("PARTNERSHIP_ROLE_MENTOR", "mentor");
@@ -24,16 +26,78 @@ $app->db = new \PDO(
     $config['database'][$config['environment']]['password']
 );
 
+/**
+ * Handles oauth based callbacks
+ */
+$app->get('/v1/oauth', function() use ($app, $clientConfig) {
+    $auth = new \MentorApp\Auth($app);
+
+    if ($auth->callbackOAuth($clientConfig[$_SESSION['oauth_session']['type']])) {
+        $app->response->redirect('/doLogin/' . $_SESSION['oauth_session']['type'], 302);
+    } else {
+        $app->response->redirect('/', 302);
+    }
+});
+
+/**
+ * Handles oauth based authentication
+ */
+$app->get('/v1/oauth/:type', function($type) use ($app, $clientConfig) {
+    $app->response->headers->set('Content-Type', 'application/json');
+
+    $auth = new \MentorApp\Auth($app);
+    $result = $auth->initialOAuth($type, array("user"), $clientConfig[$type]);
+
+    if (is_string($result)) {
+        $app->response->setBody(json_encode(array('redirect' => $result)));
+    } elseif ($result) {
+        $app->response->setBody(json_encode(array('redirect' => '/doLogin/' . $type)));
+    } else {
+        $app->response->setStatus(403);
+    }
+});
+
+/**
+ * Retrieves github profile information for the authorized (logged in) user
+ */
+$app->get('/v1/github/profile', function () use ($app) {
+    $app->response->headers->set('Content-Type', 'application/json');
+
+    $github = new \MentorApp\Github($app, new \MentorApp\Auth($app));
+
+    if ($response = $github->getProfile()) {
+        $app->response->setBody($response->getBody());
+    } else {
+        $app->response->setBody(json_encode(array('status' => 'error')));
+    }
+});
+
 $app->get('/v1/users/:id', function($id) use ($app) {
     try {
+        $response = array();
+        $userService = new \MentorApp\UserService($app->db);
+
+        // handles third party login requests for user profile
+        if (isset($_GET['third_party'])) {
+            switch ($_GET['third_party']) {
+                case 'github':
+                    $id = $userService->getUserId('github', $id);
+                    break;
+                case 'twitter':
+                    $id = $userService->getUserId('twitter', $id);
+                    break;
+                default:
+                    $id = null;
+            }
+        }
+
         // add authentication, authz shouldn't matter here
         $hashValidator = new \MentorApp\HashValidator();
         if (!$hashValidator->validate($id)) {
             $app->response->setStatus(404);
             return;
         }
-        $response = array();
-        $userService = new \MentorApp\UserService($app->db);
+
         $userResponse = $userService->retrieve($id);
         $skillService = new \MentorApp\SkillService($app->db);
         $partnershipManager = new \MentorApp\PartnershipManager($app->db);
@@ -119,7 +183,9 @@ $app->post('/v1/users', function() use ($app) {
         $user->lastName = filter_var($dataArray['last_name'], FILTER_SANITIZE_STRING);
         $user->email = filter_var($dataArray['email'], FILTER_SANITIZE_EMAIL);
         $user->githubHandle = filter_var($dataArray['github_handle'], FILTER_SANITIZE_STRING);
+        $user->githubUid = filter_var($dataArray['github_uid'], FILTER_SANITIZE_STRING);
         $user->twitterHandle = filter_var($dataArray['twitter_handle'], FILTER_SANITIZE_STRING);
+        $user->twitterUid = filter_var($dataArray['twitter_uid'], FILTER_SANITIZE_STRING);
         $user->ircNick = filter_var($dataArray['irc_nick'], FILTER_SANITIZE_STRING);
         $user->mentorAvailable = ($dataArray['mentor_available'] == 1) ? 1 : 0;
         $user->apprenticeAvailable = $dataArray['apprentice_available'] ? 1 : 0;
@@ -130,13 +196,12 @@ $app->post('/v1/users', function() use ($app) {
             $id = filter_var($teaching, '/^[0-9a-f]{10}$/');
             $user->teachingSkills[] = $skillService->retrieve($id);
         }
-    
-        foreach ($dataArray['learning_skills'] as $learning)
-        {
+
+        foreach ($dataArray['learning_skills'] as $learning) {
             $id = filter_var($learning, '/^[0-9a-f]{10}$/');
             $user->learningSkills[] = $skillService->retrieve($id);
-        } 
-                
+        }
+
         $savedUser = $userService->create($user);
         if (!$savedUser) {
             $app->response->setStatus(400);
@@ -155,7 +220,7 @@ $app->post('/v1/users', function() use ($app) {
         $app->log->warn($re->getMessage() . ': ' . $re->getFile() . ':' . $re->getLine());
         $app->setStatus(500);
     }
-});        
+});
 
 $app->put('/v1/users/:id', function($id) use ($app) {
     try {

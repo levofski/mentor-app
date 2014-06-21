@@ -29,6 +29,15 @@ body,
 	background-repeat: repeat-x;
 }
 
+nav li {
+    display: inline;
+}
+
+nav li a {
+    text-decoration: none;
+    margin-right: 25px;
+}
+
 .cell
 {
 	margin: 1em;
