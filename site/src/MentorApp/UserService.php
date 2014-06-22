@@ -363,5 +363,65 @@ class UserService
         }
         return $user;
     }
+
+    /**
+     * Method to search for users by the types of skills of they claim
+     *
+     * @param $skill string the name of the skill
+     * @param $skillType string to indicate whether the skill is taught/learned
+     * @return array an array of the user objects that have that skill
+     */
+    public function searchBySkill($skill, $skillType)
+    {
+        if ($skillType !== self::SKILL_TYPE_TEACHING && $skillType !== self::SKILL_TYPE_LEARNING) {
+            throw new \InvalidArgumentException("The skill type you are trying to search by does not exist");
+        }
+
+        $skillTable = 'teaching_skills';
+        if ($skillType === self::SKILL_TYPE_LEARNING) {
+            $skillTable = 'learning_skills';
+        }
+        $query = 'SELECT u.id as user_id from `user` as u ';
+        $query .= 'INNER JOIN ' . $skillTable . ' as st on u.id = st.id_user ';
+        $query .= 'INNER JOIN `skill` as s on s.id = st.id_tag ';
+        $query .= 'WHERE s.name like :skill';
+        $statement = $this->db->prepare($query);
+        $statement->execute(['skill' => strtolower($skill)]);
+        $users = [];
+        while (($row = $statement->fetch()) !== false) {
+            $user = $this->retrieve($row['user_id']);
+            $users[] = $user;
+        }
+        return $users;
+    }
+
+    /**
+     * Method to retrieve a list of users by first name or last name
+     *
+     * @param $name string the name of the person you are searching for
+     * @return array a list of all the users that match the query
+     */
+    public function searchByName($name)
+    {
+        if (!is_string($name)) {
+            throw new \InvalidArgumentException("You must use a string to search by name");
+        }
+
+        // if we get a first name and surname (ie: 'Joe Smith') - let's try to match it.
+        $names = explode(' ', $name);
+        $first_name = (isset($names[0])) ? $names[0] : '';
+        $last_name = (isset($names[1])) ? $names[1] : '';
+
+        $query = "SELECT `id` FROM `user` WHERE (`first_name` LIKE :name || `last_name` LIKE :name)";
+        $query .= " || (`first_name` like :first_name && `last_name` like :last_name)";
+        $statement = $this->db->prepare($query);
+        $statement->execute(['name' => $name, 'first_name' => $first_name, 'last_name' => $last_name]);
+        $users = [];
+        while (($row = $statement->fetch()) !== false) {
+            $user = $this->retrieve($row['id']);
+            $users[] = $user;
+        }
+        return $users;
+    }
 }
 
