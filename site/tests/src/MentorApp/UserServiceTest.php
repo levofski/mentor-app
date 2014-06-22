@@ -637,4 +637,13 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
         $userService->searchBySkill('PHP', 'learnding');
     }            
 
+    /**
+     * Ensure that if a string is not provided as a name that an InvalidArgumentException is thrown
+     * @expectedException \InvalidArgumentException
+     */
+    public function testInvalidArgumentThrownOnNonStringName()
+    {
+        $userService = new UserService($this->db);
+        $userService->searchByName(1);
+    }
 }

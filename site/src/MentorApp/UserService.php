@@ -364,5 +364,34 @@ class UserService
         }
         return $users;
     }
+
+    /**
+     * Method to retrieve a list of users by first name or last name
+     *
+     * @param $name string the name of the person you are searching for
+     * @return array a list of all the users that match the query
+     */
+    public function searchByName($name)
+    {
+        if (!is_string($name)) {
+            throw new \InvalidArgumentException("You must use a string to search by name");
+        }
+
+        // if we get a first name and surname (ie: 'Joe Smith') - let's try to match it.
+        $names = explode(' ', $name);
+        $first_name = (isset($names[0])) ? $names[0] : '';
+        $last_name = (isset($names[1])) ? $names[1] : '';
+
+        $query = "SELECT `id` FROM `users` WHERE (`first_name` LIKE :name || `last_name` LIKE :name)";
+        $query .= " || (`first_name` like :first_name && `last_name` like :last_name)";
+        $statement = $this->db->prepare($query);
+        $statement->execute(['name' => $name, 'first_name' => $first_name, 'last_name' => $last_name]);
+        $users = [];
+        while (($row = $statement->fetch()) !== false) {
+            $user = $this->retrieve($row['id']);
+            $users[] = $user;
+        }
+        return $users;
+    }
 }
 
