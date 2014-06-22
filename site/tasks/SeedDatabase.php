@@ -24,9 +24,9 @@ class SeedDatabase extends Task
        //hacky hacky hacky, keep the config hacky
        require_once __DIR__.'/..//config/database.php';
        $this->pdo = new \PDO(
-           'mysql:hostname='.$config['database']['development']['hostname'].';dbname='.$config['database']['development']['database'],
-           $config['database']['development']['username'],
-           $config['database']['development']['password']
+           'mysql:hostname='.$config['database']['dev']['hostname'].';dbname='.$config['database']['dev']['database'],
+           $config['database']['dev']['username'],
+           $config['database']['dev']['password']
        );
 
        $this->skills = array();
