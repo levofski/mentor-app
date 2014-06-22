@@ -343,12 +343,12 @@ class UserService
      */
     public function searchBySkill($skill, $skillType)
     {
-        if ($skillType !== SKILL_TYPE_TEACHING && $skillType !== SKILL_TYPE_LEARNING) {
+        if ($skillType !== self::SKILL_TYPE_TEACHING && $skillType !== self::SKILL_TYPE_LEARNING) {
             throw new \InvalidArgumentException("The skill type you are trying to search by does not exist");
         }
 
         $skillTable = 'teaching_skills';
-        if ($skillType === SKILL_TYPE_LEARNING) {
+        if ($skillType === self::SKILL_TYPE_LEARNING) {
             $skillTable = 'learning_skills';
         }
         $query = 'SELECT id from `user` as u ';

@@ -627,4 +627,14 @@ class UserServiceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($data[1]['id'], $results[1]->id);
     } 
 
+    /**
+     * Ensure that if the wrong skill type is provided an InvalidArgumentException is thrown
+     * @expectedException \InvalidArgumentException
+     */
+    public function testInvalidArgumentIsThrownOnInvalidSkillType()
+    {
+        $userService = new UserService($this->db);
+        $userService->searchBySkill('PHP', 'learnding');
+    }            
+
 }
