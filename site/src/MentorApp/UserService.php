@@ -333,5 +333,36 @@ class UserService
         }
         return $user;
     }
+
+    /**
+     * Method to search for users by the types of skills of they claim
+     *
+     * @param $skill string the name of the skill
+     * @param $skillType string to indicate whether the skill is taught/learned
+     * @return array an array of the user objects that have that skill
+     */
+    public function searchBySkill($skill, $skillType)
+    {
+        if ($skillType !== SKILL_TYPE_TEACHING && $skillType !== SKILL_TYPE_LEARNING) {
+            throw new \InvalidArgumentException("The skill type you are trying to search by does not exist");
+        }
+
+        $skillTable = 'teaching_skills';
+        if ($skillType === SKILL_TYPE_LEARNING) {
+            $skillTable = 'learning_skills';
+        }
+        $query = 'SELECT id from `user` as u ';
+        $query .= 'LEFT JOIN ' . $skillTable . ' as st on u.id = st.id_user ';
+        $query .= 'LEFT JOIN `skills` as s on s.id = st.id_skill ';
+        $query .= 'WHERE s.name like \':skill \'';
+        $statement = $db->prepare($query);
+        $statement->execute(['skill' => strtolower($skill)]);
+        $users = [];
+        while (($row = $statement->fetch()) !== false) {
+            $user = $this->retrieve($row['id']);
+            $users[] = $user;
+        }
+        return $users;
+    }
 }
 
