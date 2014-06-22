@@ -351,15 +351,15 @@ class UserService
         if ($skillType === self::SKILL_TYPE_LEARNING) {
             $skillTable = 'learning_skills';
         }
-        $query = 'SELECT id from `user` as u ';
-        $query .= 'LEFT JOIN ' . $skillTable . ' as st on u.id = st.id_user ';
-        $query .= 'LEFT JOIN `skills` as s on s.id = st.id_skill ';
-        $query .= 'WHERE s.name like \':skill \'';
+        $query = 'SELECT u.id as user_id from `user` as u ';
+        $query .= 'INNER JOIN ' . $skillTable . ' as st on u.id = st.id_user ';
+        $query .= 'INNER JOIN `skill` as s on s.id = st.id_tag ';
+        $query .= 'WHERE s.name like :skill';
         $statement = $db->prepare($query);
         $statement->execute(['skill' => strtolower($skill)]);
         $users = [];
         while (($row = $statement->fetch()) !== false) {
-            $user = $this->retrieve($row['id']);
+            $user = $this->retrieve($row['user_id']);
             $users[] = $user;
         }
         return $users;
@@ -382,7 +382,7 @@ class UserService
         $first_name = (isset($names[0])) ? $names[0] : '';
         $last_name = (isset($names[1])) ? $names[1] : '';
 
-        $query = "SELECT `id` FROM `users` WHERE (`first_name` LIKE :name || `last_name` LIKE :name)";
+        $query = "SELECT `id` FROM `user` WHERE (`first_name` LIKE :name || `last_name` LIKE :name)";
         $query .= " || (`first_name` like :first_name && `last_name` like :last_name)";
         $statement = $this->db->prepare($query);
         $statement->execute(['name' => $name, 'first_name' => $first_name, 'last_name' => $last_name]);
