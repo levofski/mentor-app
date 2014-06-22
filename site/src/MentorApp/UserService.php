@@ -355,7 +355,7 @@ class UserService
         $query .= 'INNER JOIN ' . $skillTable . ' as st on u.id = st.id_user ';
         $query .= 'INNER JOIN `skill` as s on s.id = st.id_tag ';
         $query .= 'WHERE s.name like :skill';
-        $statement = $db->prepare($query);
+        $statement = $this->db->prepare($query);
         $statement->execute(['skill' => strtolower($skill)]);
         $users = [];
         while (($row = $statement->fetch()) !== false) {
