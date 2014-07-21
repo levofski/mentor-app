@@ -9,6 +9,8 @@ Vagrant
 ####Start vagrant
 The system is bundled with a Vagrant set up, so you can get up and running quickly and in a common environment.
 
+** Does not work on 1.3.5; there is an error with ssh_connect after building the box. **
+
 To get the Vagrant system running, go to vagrant-mentor-app and run the following:
 
 $ vagrant up
