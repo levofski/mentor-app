@@ -9,7 +9,7 @@ OSX Installation
 Vagrant
 -------
 
-The system is bundled with a Vagrant set up, so you can get up and running quickly and in a common environment (for more informatin on how to work with Vagrant and why it is the greatest thing since sliced bread, visit http://docs.vagrantup.com/v2/getting-started/index.html). Open up Terminal and run these commands to start the vagrant instance for you:
+The system is bundled with a Vagrant set up, so you can get up and running quickly and in a common environment (for more informatin on how to work with Vagrant and why it is the greatest thing since sliced bread, visit http://docs.vagrantup.com/v2/getting-started/index.html). Download and install the latest versions of [Vagrant](http://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads). Open up Terminal and run these commands to start the vagrant instance for you:
 
 ``` shell
 $ git clone git@github.com:phpmentoring/mentor-app.git
