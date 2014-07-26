@@ -3,68 +3,96 @@ mentor-app
 
 Mentor matching application to assist with the task of matching mentors with mentees based on the skills they list as interests.  This is a backbone.js app using a MySQL database.
 
+OSX Installation
+================
+
 Vagrant
-=======
+-------
 
-####Start vagrant
-The system is bundled with a Vagrant set up, so you can get up and running quickly and in a common environment.
+The system is bundled with a Vagrant set up, so you can get up and running quickly and in a common environment (for more informatin on how to work with Vagrant and why it is the greatest thing since sliced bread, visit http://docs.vagrantup.com/v2/getting-started/index.html). Open up Terminal and run these commands to start the vagrant instance for you:
 
-** Does not work on 1.3.5; there is an error with ssh_connect after building the box. **
-
-To get the Vagrant system running, go to vagrant-mentor-app and run the following:
-
+``` shell
+$ git clone git@github.com:phpmentoring/mentor-app.git
+$ cd mentor-app/vagrant-mentor-app/
 $ vagrant up
-
-This will start the vagrant instance for you. 
-
-####Configure the url to the webserver possibly in your `/etc/hosts` file
-
-To access the web server on either you will need to open your browser and go to:
-
-http://localhost:8080/
-OR
-http://mentorapp.dev
-
-To access mentorapp.dev you will need to add the following to your hosts file:
-
-192.168.56.201   mentorapp.dev
-
-####Other Vagrant commands 
-
-If you need to access your Vagrant machine at any time you can go in to the relevant directory and run:
-
 $ vagrant ssh
+$ cd /var/www
+$ composer install
+$ bin/phinx migrate
+```
 
-Your files are located at `/var/www` and run `composer install` to set up the mentor-app project.
+If all went well, the Mentor App is now running on your machine, the latest Composer packages are installed, and the latest Phinx database migrations have been applied.
 
+OSX
+---
 
-When you are finished for the day, go to the `vagrant-mentor-app` directory and run:
+Next up, you need to configure the `/etc/hosts` file so that you can actually access it in a browser. This is accomplished by appending a line to the `/etc/hosts` file:
 
-$ vagrant halt
+``` shell
+$ exit
+$ sudo su
+$ echo '192.168.56.201 mentorapp.dev' >> /etc/hosts
+```
 
-When you are finished forever, you can completely destroy the machine by running:
+Now you can visit http://mentorapp.dev in your browser!
 
-$ vagrant destroy
+Testing with Behat
+------------------
+
+Before you can run the Behat tests, you must start the Selenium server on the host machine.
+
+ - Download the latest [Chrome Webdriver](http://chromedriver.storage.googleapis.com/index.html) and place it in `/usr/local/bin`.
+ - Download the [Selenium Stand-alone server](http://selenium.googlecode.com/files/selenium-server-standalone-2.35.0.jar) and place it in `/usr/local/bin`.
+ - Create an alias (consider adding it to your `.bash_profile`) to your for future use and start then Selenium server:
+
+``` shell
+$ alias behat='java -jar /usr/local/bin/selenium-server-standalone-2.35.0.jar -host 192.168.56.201'
+$ behat
+```
+
+Now we can run the tests!
+
+``` shell
+$ cd mentor-app/vagrant-mentor-app/
+$ vagrant up
+$ vagrant ssh
+$ cd /var/www
+$ bin/behat -e development
+```
+
+* TODO: If all goes well, you should see a Google Chrome window open up and the tests execute. (This doesn't happen with the above instructions, the tests run in the shell? Is there another plugin required?)
+* TODO: Set up script to build and seed test database.
+
+Windows Installation
+====================
+
+TODO!
+
+Contributing
+============
+
+ 1. Code!
+ 2. Issue a pull request.
+ 3. Please include any schema changes with a database migration.
 
 Database Migration
 ==================
 
-In order to keep control of the database we use a system called Phinx.
-Full documentation can be found at: http://docs.phinx.org/en/latest/
+In order to keep control of the database we use a system called Phinx. Full documentation can be found at: http://docs.phinx.org/en/latest/
 
-To create a change from the /var/www directory run the following command:
+To create a change from the `/var/www` directory run the following command:
 
-$ bin/phinx create <Name for migration>
+`$ bin/phinx create <Name for migration>`
 
 To check the status (what's not been run yet, etc) run the following command:
 
-$ bin/phinx status -e development
+`$ bin/phinx status -e development`
 
 To apply outstanding migrations run the following:
 
-$ bin/phinx migrate -e development
+`$ bin/phinx migrate -e development`
 
-If you don't specify the "-e development" then it will default to development with a warning.
+If you don't specify the `-e development` then it will default to development with a warning.
 
 Seeding the Database
 ====================
@@ -72,25 +100,10 @@ Seeding the Database
 It is useful to have data in the database to interact with the site or the API. Seeding the data is accomplished using a `phing` task.
 
 ```
-bin/phing seed-db
+$ bin/phing seed-db
 ```
 
 The task will prompt you for number of skills to add and number of users. You can choose any number but remember the higher the number the longer it takes.
-
-Behat
-=====
-The following directions assume the host machine is a Mac.  For windows, I don't know what to do...
-To get started with Behat:
-* First, on the host machine (your Mac), download the [Chrome Webdriver](http://chromedriver.storage.googleapis.com/index.html) and place it in a convenient place.  A good spot is to create a `bin` directory within your home directory and place it there (`~/bin`).
-* Again, on the host machine (your Mac), download the [Selenium Stand-alone server](http://selenium.googlecode.com/files/selenium-server-standalone-2.35.0.jar) and place it in the same `bin` directory where you placed the Webdriver.
-  *(Optional) Create an alias to start the selenium server.  For example: `alias behat='java -jar ~/bin/selenium-server-standalone-2.35.0.jar -host 192.168.56.201`
-* Before you can run the behat tests, you must start the selenium server on the host machine.  From the terminal, simply type “behat” and the server should start running.
-* To run the tests, SSH into the VM, go to the root of the project (`/var/www` - same directory as the behat.yml file) and type `bin/behat`.  If you are using vagrant, then the VM must be running and you must be within an SSH session (vagrant ssh).
-
-If all goes well, you should see a Google Chrome window open up and the tests execute.
-
-### TODO:
-* Set up script to build and seed test database.
 
 Styles
 ======
