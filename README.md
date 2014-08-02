@@ -60,7 +60,7 @@ $ cd /var/www
 $ bin/behat -e development
 ```
 
-* TODO: If all goes well, you should see a Google Chrome window open up and the tests execute. (This doesn't happen with the above instructions, the tests run in the shell? Is there another plugin required?)
+* TODO: If all goes well, you should see a Google Chrome window open up and the tests execute.
 * TODO: Set up script to build and seed test database.
 
 Windows Installation
