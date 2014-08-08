@@ -36,6 +36,17 @@ $ echo '192.168.56.201 mentorapp.dev' >> /etc/hosts
 
 Now you can visit http://mentorapp.dev in your browser!
 
+Testing with PHPUnit
+--------------------
+
+To run the PHPUnit tests, SSH into your vagrant and run the PHPUnit binary.
+
+``` shell
+$ vagrant ssh
+$ cd /var/www
+$ bin/phpunit
+```
+
 Testing with Behat
 ------------------
 
@@ -53,14 +64,13 @@ $ behat
 Now we can run the tests!
 
 ``` shell
-$ cd mentor-app/vagrant-mentor-app/
-$ vagrant up
 $ vagrant ssh
 $ cd /var/www
 $ bin/behat -e development
 ```
 
-* TODO: If all goes well, you should see a Google Chrome window open up and the tests execute. (This doesn't happen with the above instructions, the tests run in the shell? Is there another plugin required?)
+If all goes well, you should see a Google Chrome window open up and the tests execute!
+
 * TODO: Set up script to build and seed test database.
 
 Windows Installation
